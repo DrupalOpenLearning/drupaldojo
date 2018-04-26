@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "c28b5c9830accf12663ed9bf31802371",
+    "content-hash": "7933b34e9e3474c4c220ff6d71dd696c",
     "packages": [
         {
             "name": "abraham/twitteroauth",
@@ -2034,6 +2034,12 @@
                 "symfony/css-selector": "~2.8"
             },
             "type": "drupal-core",
+            "extra": {
+                "patches_applied": {
+                    "Clean up user input for exposed checkboxes": "https://www.drupal.org/files/issues/2687773-18-Cleanup-user-input-for-checkboxes-8.2.patch",
+                    "Color module html preview optional": "https://www.drupal.org/files/issues/color-optional-html-preview-2844190-2.patch"
+                }
+            },
             "autoload": {
                 "psr-4": {
                     "Drupal\\Core\\": "lib/Drupal/Core",
@@ -2785,6 +2791,9 @@
                         "status": "not-covered",
                         "message": "Alpha releases are not covered by Drupal security advisories."
                     }
+                },
+                "patches_applied": {
+                    "Fix preview on node": "https://www.drupal.org/files/issues/2848080-2-preview-fails-on-node.patch"
                 }
             },
             "notification-url": "https://packages.drupal.org/8/downloads",
@@ -2858,8 +2867,7 @@
             "homepage": "https://www.drupal.org/project/link_css",
             "support": {
                 "source": "http://cgit.drupalcode.org/link_css"
-            },
-            "time": "2016-11-08 03:19:30"
+            }
         },
         {
             "name": "drupal/mailsystem",
@@ -3182,8 +3190,7 @@
             "homepage": "https://www.drupal.org/project/r4032login",
             "support": {
                 "source": "http://cgit.drupalcode.org/r4032login"
-            },
-            "time": "2018-04-17 09:58:23"
+            }
         },
         {
             "name": "drupal/search_api",
@@ -4005,6 +4012,9 @@
                     "drupal/like_and_dislike": {
                         "Fix preview on node": "https://www.drupal.org/files/issues/2848080-2-preview-fails-on-node.patch"
                     }
+                },
+                "patches_applied": {
+                    "Meta Display Configurable": "https://www.drupal.org/files/issues/2908231-display_submitted-2.patch"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
