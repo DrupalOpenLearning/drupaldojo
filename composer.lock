@@ -1,10 +1,10 @@
 {
     "_readme": [
         "This file locks the dependencies of your project to a known state",
-        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "2b524cc140d2ac8a2c6eef86adc0bedc",
+    "content-hash": "74d6ed36e6855d7b67ea23cb124c65c2",
     "packages": [
         {
             "name": "abraham/twitteroauth",
@@ -117,7 +117,7 @@
             "version": "4.0.0",
             "source": {
                 "type": "git",
-                "url": "https://github.com/jackmoore/autosize.git",
+                "url": "git@github.com:jackmoore/autosize.git",
                 "reference": "113f1b345868901619d4b01cda02b09aa1690ebd"
             },
             "dist": {
@@ -2537,6 +2537,9 @@
                         "status": "not-covered",
                         "message": "Alpha releases are not covered by Drupal security advisories."
                     }
+                },
+                "patches_applied": {
+                    "Add relationship to flagged entities when Flagging is base table": "https://www.drupal.org/files/issues/2723703_31.patch"
                 }
             },
             "notification-url": "https://packages.drupal.org/8/downloads",
@@ -4383,8 +4386,7 @@
                     "drupal/votingapi": {
                         "Delete everywhere": "https://www.drupal.org/files/issues/2018-03-29/delete-everywhere-2957067-2.patch"
                     }
-                },
-                "patches_applied": []
+                }
             },
             "autoload": {
                 "psr-4": {
