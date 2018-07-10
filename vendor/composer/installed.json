@@ -1579,7 +1579,7 @@
             },
             "drupal": {
                 "version": "8.x-1.0-alpha5",
-                "datestamp": "1511317688",
+                "datestamp": "1525303380",
                 "security-coverage": {
                     "status": "not-covered",
                     "message": "Project has not opted into security advisory coverage!"
@@ -2322,7 +2322,7 @@
             },
             "drupal": {
                 "version": "8.x-1.0-beta3",
-                "datestamp": "1520958485",
+                "datestamp": "1528452184",
                 "security-coverage": {
                     "status": "not-covered",
                     "message": "Beta releases are not covered by Drupal security advisories."
@@ -2390,7 +2390,7 @@
             },
             "drupal": {
                 "version": "8.x-1.4",
-                "datestamp": "1515143885",
+                "datestamp": "1527241084",
                 "security-coverage": {
                     "status": "covered",
                     "message": "Covered by Drupal's security advisory policy"
@@ -3162,7 +3162,7 @@
             },
             "drupal": {
                 "version": "8.x-1.2",
-                "datestamp": "1505802867",
+                "datestamp": "1527502684",
                 "security-coverage": {
                     "status": "covered",
                     "message": "Covered by Drupal's security advisory policy"
@@ -3230,7 +3230,7 @@
                 "datestamp": "1523692684",
                 "security-coverage": {
                     "status": "not-covered",
-                    "message": "Project has not opted into security advisory coverage!"
+                    "message": "Beta releases are not covered by Drupal security advisories."
                 }
             },
             "patches_applied": {
@@ -3246,6 +3246,10 @@
             {
                 "name": "Jaypan",
                 "homepage": "https://www.drupal.org/user/324696"
+            },
+            {
+                "name": "aburrows",
+                "homepage": "https://www.drupal.org/user/577844"
             },
             {
                 "name": "edutrul",
@@ -3360,7 +3364,7 @@
                 }
             }
         },
-        "installation-source": "source",
+        "installation-source": "dist",
         "notification-url": "https://packages.drupal.org/8/downloads",
         "license": [
             "GPL-2.0-or-later"
@@ -3698,7 +3702,7 @@
             },
             "drupal": {
                 "version": "8.x-1.1",
-                "datestamp": "1513810384",
+                "datestamp": "1527112080",
                 "security-coverage": {
                     "status": "covered",
                     "message": "Covered by Drupal's security advisory policy"
@@ -7904,17 +7908,17 @@
     },
     {
         "name": "zendframework/zend-diactoros",
-        "version": "1.8.0",
-        "version_normalized": "1.8.0.0",
+        "version": "1.8.1",
+        "version_normalized": "1.8.1.0",
         "source": {
             "type": "git",
             "url": "https://github.com/zendframework/zend-diactoros.git",
-            "reference": "11c9c1835e60eef6f9234377a480fcec096ebd9e"
+            "reference": "63d920d1c9ebc009d860c3666593a66298727dd6"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/zendframework/zend-diactoros/zipball/11c9c1835e60eef6f9234377a480fcec096ebd9e",
-            "reference": "11c9c1835e60eef6f9234377a480fcec096ebd9e",
+            "url": "https://api.github.com/repos/zendframework/zend-diactoros/zipball/63d920d1c9ebc009d860c3666593a66298727dd6",
+            "reference": "63d920d1c9ebc009d860c3666593a66298727dd6",
             "shasum": ""
         },
         "require": {
@@ -7930,7 +7934,7 @@
             "phpunit/phpunit": "^5.7.16 || ^6.0.8",
             "zendframework/zend-coding-standard": "~1.0"
         },
-        "time": "2018-06-27T18:52:43+00:00",
+        "time": "2018-07-09T21:17:27+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {
