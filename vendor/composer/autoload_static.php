@@ -108,6 +108,11 @@ class ComposerStaticInit4df3596a676f08ce53e202b52e58079f
         array (
             'League\\Csv\\' => 11,
         ),
+        'J' => 
+        array (
+            'JakubOnderka\\PhpConsoleHighlighter\\' => 35,
+            'JakubOnderka\\PhpConsoleColor\\' => 29,
+        ),
         'H' => 
         array (
             'Http\\Promise\\' => 13,
@@ -329,6 +334,14 @@ class ComposerStaticInit4df3596a676f08ce53e202b52e58079f
         array (
             0 => __DIR__ . '/..' . '/league/csv/src',
         ),
+        'JakubOnderka\\PhpConsoleHighlighter\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/jakub-onderka/php-console-highlighter/src',
+        ),
+        'JakubOnderka\\PhpConsoleColor\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/jakub-onderka/php-console-color/src',
+        ),
         'Http\\Promise\\' => 
         array (
             0 => __DIR__ . '/..' . '/php-http/promise/src',
@@ -464,17 +477,6 @@ class ComposerStaticInit4df3596a676f08ce53e202b52e58079f
                 0 => __DIR__ . '/..' . '/stack/builder/src',
             ),
         ),
-        'J' => 
-        array (
-            'JakubOnderka\\PhpConsoleHighlighter' => 
-            array (
-                0 => __DIR__ . '/..' . '/jakub-onderka/php-console-highlighter/src',
-            ),
-            'JakubOnderka\\PhpConsoleColor' => 
-            array (
-                0 => __DIR__ . '/..' . '/jakub-onderka/php-console-color/src',
-            ),
-        ),
         'G' => 
         array (
             'Google_Service_' => 
@@ -514,6 +516,10 @@ class ComposerStaticInit4df3596a676f08ce53e202b52e58079f
             'Doctrine\\Common\\Collections\\' => 
             array (
                 0 => __DIR__ . '/..' . '/doctrine/collections/lib',
+            ),
+            'Dflydev\\DotAccessData' => 
+            array (
+                0 => __DIR__ . '/..' . '/dflydev/dot-access-data/src',
             ),
         ),
         'C' => 
