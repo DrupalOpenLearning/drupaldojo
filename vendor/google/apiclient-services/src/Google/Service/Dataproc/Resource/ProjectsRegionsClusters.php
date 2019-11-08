@@ -26,7 +26,8 @@
 class Google_Service_Dataproc_Resource_ProjectsRegionsClusters extends Google_Service_Resource
 {
   /**
-   * Creates a cluster in a project. (clusters.create)
+   * Creates a cluster in a project. The returned Operation.metadata will be
+   * ClusterOperationMetadata. (clusters.create)
    *
    * @param string $projectId Required. The ID of the Google Cloud Platform
    * project that the cluster belongs to.
@@ -52,7 +53,8 @@ class Google_Service_Dataproc_Resource_ProjectsRegionsClusters extends Google_Se
     return $this->call('create', array($params), "Google_Service_Dataproc_Operation");
   }
   /**
-   * Deletes a cluster in a project. (clusters.delete)
+   * Deletes a cluster in a project. The returned Operation.metadata will be
+   * ClusterOperationMetadata. (clusters.delete)
    *
    * @param string $projectId Required. The ID of the Google Cloud Platform
    * project that the cluster belongs to.
@@ -81,9 +83,9 @@ class Google_Service_Dataproc_Resource_ProjectsRegionsClusters extends Google_Se
     return $this->call('delete', array($params), "Google_Service_Dataproc_Operation");
   }
   /**
-   * Gets cluster diagnostic information. After the operation completes, the
-   * Operation.response field contains DiagnoseClusterOutputLocation.
-   * (clusters.diagnose)
+   * Gets cluster diagnostic information. The returned Operation.metadata will be
+   * ClusterOperationMetadata. After the operation completes, Operation.response
+   * contains DiagnoseClusterResults. (clusters.diagnose)
    *
    * @param string $projectId Required. The ID of the Google Cloud Platform
    * project that the cluster belongs to.
@@ -166,7 +168,8 @@ class Google_Service_Dataproc_Resource_ProjectsRegionsClusters extends Google_Se
     return $this->call('list', array($params), "Google_Service_Dataproc_ListClustersResponse");
   }
   /**
-   * Updates a cluster in a project. (clusters.patch)
+   * Updates a cluster in a project. The returned Operation.metadata will be
+   * ClusterOperationMetadata. (clusters.patch)
    *
    * @param string $projectId Required. The ID of the Google Cloud Platform
    * project the cluster belongs to.
@@ -176,19 +179,6 @@ class Google_Service_Dataproc_Resource_ProjectsRegionsClusters extends Google_Se
    * @param Google_Service_Dataproc_Cluster $postBody
    * @param array $optParams Optional parameters.
    *
-   * @opt_param string updateMask Required. Specifies the path, relative to
-   * Cluster, of the field to update. For example, to change the number of workers
-   * in a cluster to 5, the update_mask parameter would be specified as
-   * config.worker_config.num_instances, and the PATCH request body would specify
-   * the new value, as follows: {   "config":{     "workerConfig":{
-   * "numInstances":"5"     }   } } Similarly, to change the number of preemptible
-   * workers in a cluster to 5, the update_mask parameter would be
-   * config.secondary_worker_config.num_instances, and the PATCH request body
-   * would be set as follows: {   "config":{     "secondaryWorkerConfig":{
-   * "numInstances":"5"     }   } } Note: Currently, only the following fields can
-   * be updated:      Mask  Purpose      labels  Update labels
-   * config.worker_config.num_instances  Resize primary worker group
-   * config.secondary_worker_config.num_instances  Resize secondary worker group
    * @opt_param string gracefulDecommissionTimeout Optional. Timeout for graceful
    * YARN decomissioning. Graceful decommissioning allows removing nodes from the
    * cluster without interrupting jobs in progress. Timeout specifies how long to
@@ -204,6 +194,21 @@ class Google_Service_Dataproc_Resource_ProjectsRegionsClusters extends Google_Se
    * (https://en.wikipedia.org/wiki/Universally_unique_identifier).The id must
    * contain only letters (a-z, A-Z), numbers (0-9), underscores (_), and hyphens
    * (-). The maximum length is 40 characters.
+   * @opt_param string updateMask Required. Specifies the path, relative to
+   * Cluster, of the field to update. For example, to change the number of workers
+   * in a cluster to 5, the update_mask parameter would be specified as
+   * config.worker_config.num_instances, and the PATCH request body would specify
+   * the new value, as follows: {   "config":{     "workerConfig":{
+   * "numInstances":"5"     }   } } Similarly, to change the number of preemptible
+   * workers in a cluster to 5, the update_mask parameter would be
+   * config.secondary_worker_config.num_instances, and the PATCH request body
+   * would be set as follows: {   "config":{     "secondaryWorkerConfig":{
+   * "numInstances":"5"     }   } } Note: Currently, only the following fields can
+   * be updated:      Mask  Purpose      labels  Update labels
+   * config.worker_config.num_instances  Resize primary worker group
+   * config.secondary_worker_config.num_instances  Resize secondary worker group
+   * config.autoscaling_config.policy_uriUse, stop using, or  change autoscaling
+   * policies
    * @return Google_Service_Dataproc_Operation
    */
   public function patch($projectId, $region, $clusterName, Google_Service_Dataproc_Cluster $postBody, $optParams = array())

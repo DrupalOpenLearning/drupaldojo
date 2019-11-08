@@ -21,11 +21,16 @@ class Google_Service_AlertCenter_Alert extends Google_Model
   public $createTime;
   public $customerId;
   public $data;
+  public $deleted;
   public $endTime;
+  public $etag;
+  protected $metadataType = 'Google_Service_AlertCenter_AlertMetadata';
+  protected $metadataDataType = '';
   public $securityInvestigationToolLink;
   public $source;
   public $startTime;
   public $type;
+  public $updateTime;
 
   public function setAlertId($alertId)
   {
@@ -59,6 +64,14 @@ class Google_Service_AlertCenter_Alert extends Google_Model
   {
     return $this->data;
   }
+  public function setDeleted($deleted)
+  {
+    $this->deleted = $deleted;
+  }
+  public function getDeleted()
+  {
+    return $this->deleted;
+  }
   public function setEndTime($endTime)
   {
     $this->endTime = $endTime;
@@ -66,6 +79,28 @@ class Google_Service_AlertCenter_Alert extends Google_Model
   public function getEndTime()
   {
     return $this->endTime;
+  }
+  public function setEtag($etag)
+  {
+    $this->etag = $etag;
+  }
+  public function getEtag()
+  {
+    return $this->etag;
+  }
+  /**
+   * @param Google_Service_AlertCenter_AlertMetadata
+   */
+  public function setMetadata(Google_Service_AlertCenter_AlertMetadata $metadata)
+  {
+    $this->metadata = $metadata;
+  }
+  /**
+   * @return Google_Service_AlertCenter_AlertMetadata
+   */
+  public function getMetadata()
+  {
+    return $this->metadata;
   }
   public function setSecurityInvestigationToolLink($securityInvestigationToolLink)
   {
@@ -98,5 +133,13 @@ class Google_Service_AlertCenter_Alert extends Google_Model
   public function getType()
   {
     return $this->type;
+  }
+  public function setUpdateTime($updateTime)
+  {
+    $this->updateTime = $updateTime;
+  }
+  public function getUpdateTime()
+  {
+    return $this->updateTime;
   }
 }

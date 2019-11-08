@@ -26,20 +26,21 @@
 class Google_Service_Compute_Resource_InstanceGroupManagers extends Google_Service_Resource
 {
   /**
-   * Schedules a group action to remove the specified instances from the managed
-   * instance group. Abandoning an instance does not delete the instance, but it
-   * does remove the instance from any target pools that are applied by the
-   * managed instance group. This method reduces the targetSize of the managed
-   * instance group by the number of instances that you abandon. This operation is
-   * marked as DONE when the action is scheduled even if the instances have not
-   * yet been removed from the group. You must separately verify the status of the
-   * abandoning action with the listmanagedinstances method.
+   * Flags the specified instances to be removed from the managed instance group.
+   * Abandoning an instance does not delete the instance, but it does remove the
+   * instance from any target pools that are applied by the managed instance
+   * group. This method reduces the targetSize of the managed instance group by
+   * the number of instances that you abandon. This operation is marked as DONE
+   * when the action is scheduled even if the instances have not yet been removed
+   * from the group. You must separately verify the status of the abandoning
+   * action with the listmanagedinstances method.
    *
    * If the group is part of a backend service that has enabled connection
    * draining, it can take up to 60 seconds after the connection draining duration
    * has elapsed before the VM instance is removed or deleted.
    *
-   * You can specify a maximum of 1000 instances with this method per request.
+   * You can specify a maximum of 1000 instances with this method per request. (==
+   * suppress_warning http-rest-shadowed ==)
    * (instanceGroupManagers.abandonInstances)
    *
    * @param string $project Project ID for this request.
@@ -70,7 +71,8 @@ class Google_Service_Compute_Resource_InstanceGroupManagers extends Google_Servi
     return $this->call('abandonInstances', array($params), "Google_Service_Compute_Operation");
   }
   /**
-   * Retrieves the list of managed instance groups and groups them by zone.
+   * Retrieves the list of managed instance groups and groups them by zone. (==
+   * suppress_warning http-rest-shadowed ==)
    * (instanceGroupManagers.aggregatedList)
    *
    * @param string $project Project ID for this request.
@@ -125,8 +127,8 @@ class Google_Service_Compute_Resource_InstanceGroupManagers extends Google_Servi
   /**
    * Deletes the specified managed instance group and all of the instances in that
    * group. Note that the instance group must not belong to a backend service.
-   * Read  Deleting an instance group for more information.
-   * (instanceGroupManagers.delete)
+   * Read  Deleting an instance group for more information. (== suppress_warning
+   * http-rest-shadowed ==) (instanceGroupManagers.delete)
    *
    * @param string $project Project ID for this request.
    * @param string $zone The name of the zone where the managed instance group is
@@ -156,19 +158,20 @@ class Google_Service_Compute_Resource_InstanceGroupManagers extends Google_Servi
     return $this->call('delete', array($params), "Google_Service_Compute_Operation");
   }
   /**
-   * Schedules a group action to delete the specified instances in the managed
-   * instance group. The instances are also removed from any target pools of which
-   * they were a member. This method reduces the targetSize of the managed
-   * instance group by the number of instances that you delete. This operation is
-   * marked as DONE when the action is scheduled even if the instances are still
-   * being deleted. You must separately verify the status of the deleting action
-   * with the listmanagedinstances method.
+   * Flags the specified instances in the managed instance group for immediate
+   * deletion. The instances are also removed from any target pools of which they
+   * were a member. This method reduces the targetSize of the managed instance
+   * group by the number of instances that you delete. This operation is marked as
+   * DONE when the action is scheduled even if the instances are still being
+   * deleted. You must separately verify the status of the deleting action with
+   * the listmanagedinstances method.
    *
    * If the group is part of a backend service that has enabled connection
    * draining, it can take up to 60 seconds after the connection draining duration
    * has elapsed before the VM instance is removed or deleted.
    *
-   * You can specify a maximum of 1000 instances with this method per request.
+   * You can specify a maximum of 1000 instances with this method per request. (==
+   * suppress_warning http-rest-shadowed ==)
    * (instanceGroupManagers.deleteInstances)
    *
    * @param string $project Project ID for this request.
@@ -200,8 +203,8 @@ class Google_Service_Compute_Resource_InstanceGroupManagers extends Google_Servi
   }
   /**
    * Returns all of the details about the specified managed instance group. Gets a
-   * list of available managed instance groups by making a list() request.
-   * (instanceGroupManagers.get)
+   * list of available managed instance groups by making a list() request. (==
+   * suppress_warning http-rest-shadowed ==) (instanceGroupManagers.get)
    *
    * @param string $project Project ID for this request.
    * @param string $zone The name of the zone where the managed instance group is
@@ -218,15 +221,15 @@ class Google_Service_Compute_Resource_InstanceGroupManagers extends Google_Servi
   }
   /**
    * Creates a managed instance group using the information that you specify in
-   * the request. After the group is created, it schedules an action to create
-   * instances in the group using the specified instance template. This operation
-   * is marked as DONE when the group is created even if the instances in the
-   * group have not yet been created. You must separately verify the status of the
-   * individual instances with the listmanagedinstances method.
+   * the request. After the group is created, instances in the group are created
+   * using the specified instance template. This operation is marked as DONE when
+   * the group is created even if the instances in the group have not yet been
+   * created. You must separately verify the status of the individual instances
+   * with the listmanagedinstances method.
    *
    * A managed instance group can have up to 1000 VM instances per group. Please
-   * contact Cloud Support if you need an increase in this limit.
-   * (instanceGroupManagers.insert)
+   * contact Cloud Support if you need an increase in this limit. (==
+   * suppress_warning http-rest-shadowed ==) (instanceGroupManagers.insert)
    *
    * @param string $project Project ID for this request.
    * @param string $zone The name of the zone where you want to create the managed
@@ -256,7 +259,8 @@ class Google_Service_Compute_Resource_InstanceGroupManagers extends Google_Servi
   }
   /**
    * Retrieves a list of managed instance groups that are contained within the
-   * specified project and zone. (instanceGroupManagers.listInstanceGroupManagers)
+   * specified project and zone. (== suppress_warning http-rest-shadowed ==)
+   * (instanceGroupManagers.listInstanceGroupManagers)
    *
    * @param string $project Project ID for this request.
    * @param string $zone The name of the zone where the managed instance group is
@@ -314,7 +318,8 @@ class Google_Service_Compute_Resource_InstanceGroupManagers extends Google_Servi
    * the list has a currentAction, which indicates the action that the managed
    * instance group is performing on the instance. For example, if the group is
    * still creating an instance, the currentAction is CREATING. If a previous
-   * action failed, the list displays the errors for that failed action.
+   * action failed, the list displays the errors for that failed action. (==
+   * suppress_warning http-rest-shadowed ==)
    * (instanceGroupManagers.listManagedInstances)
    *
    * @param string $project Project ID for this request.
@@ -370,18 +375,55 @@ class Google_Service_Compute_Resource_InstanceGroupManagers extends Google_Servi
     return $this->call('listManagedInstances', array($params), "Google_Service_Compute_InstanceGroupManagersListManagedInstancesResponse");
   }
   /**
-   * Schedules a group action to recreate the specified instances in the managed
-   * instance group. The instances are deleted and recreated using the current
-   * instance template for the managed instance group. This operation is marked as
-   * DONE when the action is scheduled even if the instances have not yet been
-   * recreated. You must separately verify the status of the recreating action
-   * with the listmanagedinstances method.
+   * Updates a managed instance group using the information that you specify in
+   * the request. This operation is marked as DONE when the group is patched even
+   * if the instances in the group are still in the process of being patched. You
+   * must separately verify the status of the individual instances with the
+   * listManagedInstances method. This method supports PATCH semantics and uses
+   * the JSON merge patch format and processing rules. (== suppress_warning http-
+   * rest-shadowed ==) (instanceGroupManagers.patch)
+   *
+   * @param string $project Project ID for this request.
+   * @param string $zone The name of the zone where you want to create the managed
+   * instance group.
+   * @param string $instanceGroupManager The name of the instance group manager.
+   * @param Google_Service_Compute_InstanceGroupManager $postBody
+   * @param array $optParams Optional parameters.
+   *
+   * @opt_param string requestId An optional request ID to identify requests.
+   * Specify a unique request ID so that if you must retry your request, the
+   * server will know to ignore the request if it has already been completed.
+   *
+   * For example, consider a situation where you make an initial request and the
+   * request times out. If you make the request again with the same request ID,
+   * the server can check if original operation with the same request ID was
+   * received, and if so, will ignore the second request. This prevents clients
+   * from accidentally creating duplicate commitments.
+   *
+   * The request ID must be a valid UUID with the exception that zero UUID is not
+   * supported (00000000-0000-0000-0000-000000000000).
+   * @return Google_Service_Compute_Operation
+   */
+  public function patch($project, $zone, $instanceGroupManager, Google_Service_Compute_InstanceGroupManager $postBody, $optParams = array())
+  {
+    $params = array('project' => $project, 'zone' => $zone, 'instanceGroupManager' => $instanceGroupManager, 'postBody' => $postBody);
+    $params = array_merge($params, $optParams);
+    return $this->call('patch', array($params), "Google_Service_Compute_Operation");
+  }
+  /**
+   * Flags the specified instances in the managed instance group to be immediately
+   * recreated. The instances are deleted and recreated using the current instance
+   * template for the managed instance group. This operation is marked as DONE
+   * when the flag is set even if the instances have not yet been recreated. You
+   * must separately verify the status of the recreating action with the
+   * listmanagedinstances method.
    *
    * If the group is part of a backend service that has enabled connection
    * draining, it can take up to 60 seconds after the connection draining duration
    * has elapsed before the VM instance is removed or deleted.
    *
-   * You can specify a maximum of 1000 instances with this method per request.
+   * You can specify a maximum of 1000 instances with this method per request. (==
+   * suppress_warning http-rest-shadowed ==)
    * (instanceGroupManagers.recreateInstances)
    *
    * @param string $project Project ID for this request.
@@ -419,10 +461,20 @@ class Google_Service_Compute_Resource_InstanceGroupManagers extends Google_Servi
    * deleted any instances. You must separately verify the status of the creating
    * or deleting actions with the listmanagedinstances method.
    *
+   * When resizing down, the instance group arbitrarily chooses the order in which
+   * VMs are deleted. The group takes into account some VM attributes when making
+   * the selection including:
+   *
+   * + The status of the VM instance. + The health of the VM instance. + The
+   * instance template version the VM is based on. + For regional managed instance
+   * groups, the location of the VM instance.
+   *
+   * This list is subject to change.
+   *
    * If the group is part of a backend service that has enabled connection
    * draining, it can take up to 60 seconds after the connection draining duration
-   * has elapsed before the VM instance is removed or deleted.
-   * (instanceGroupManagers.resize)
+   * has elapsed before the VM instance is removed or deleted. (==
+   * suppress_warning http-rest-shadowed ==) (instanceGroupManagers.resize)
    *
    * @param string $project Project ID for this request.
    * @param string $zone The name of the zone where the managed instance group is
@@ -457,7 +509,8 @@ class Google_Service_Compute_Resource_InstanceGroupManagers extends Google_Servi
   /**
    * Specifies the instance template to use when creating new instances in this
    * group. The templates for existing instances in the group do not change unless
-   * you recreate them. (instanceGroupManagers.setInstanceTemplate)
+   * you recreate them. (== suppress_warning http-rest-shadowed ==)
+   * (instanceGroupManagers.setInstanceTemplate)
    *
    * @param string $project Project ID for this request.
    * @param string $zone The name of the zone where the managed instance group is
@@ -492,7 +545,8 @@ class Google_Service_Compute_Resource_InstanceGroupManagers extends Google_Servi
    * instances in the managed instance group. This operation is marked DONE when
    * you make the request even if the instances have not yet been added to their
    * target pools. The change might take some time to apply to all of the
-   * instances in the group depending on the size of the group.
+   * instances in the group depending on the size of the group. (==
+   * suppress_warning http-rest-shadowed ==)
    * (instanceGroupManagers.setTargetPools)
    *
    * @param string $project Project ID for this request.
