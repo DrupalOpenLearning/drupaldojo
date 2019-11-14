@@ -2,7 +2,7 @@
 
 /**
  * @file
- *   Provides tokens for the Private Message module
+ * Provides tokens for the Private Message module.
  */
 
 use Drupal\Core\Datetime\Entity\DateFormat;
@@ -15,23 +15,22 @@ use Drupal\user\Entity\User;
  * Implements hook_token_info().
  */
 function private_message_token_info() {
-  $info = [];
 
-  // Defined the private message token type
+  // Defined the private message token type.
   $private_message_type = [
     'name' => t('Private Messages'),
     'description' => t('Tokens related to private messages'),
     'needs-data' => 'private_message',
   ];
 
-  // Define the private message thread token type
+  // Define the private message thread token type.
   $private_message_thread_type = [
     'name' => t('Private Message Threads'),
     'description' => t('Tokens related to private message threads'),
     'needs-data' => 'private_message_thread',
   ];
 
-  // Define private message tokens
+  // Define private message tokens.
   $private_message_tokens['id'] = [
     'name' => t('ID'),
     'description' => t('The ID of the private message'),
@@ -58,7 +57,7 @@ function private_message_token_info() {
     'type' => 'date',
   ];
 
-  // Define private message thread tokens
+  // Define private message thread tokens.
   $private_message_thread_tokens['id'] = [
     'name' => t('ID'),
     'description' => t('The ID of the private message thread'),
@@ -104,7 +103,7 @@ function private_message_tokens($type, $tokens, array $data, array $options, Bub
     $langcode = LanguageInterface::LANGCODE_DEFAULT;
   }
 
-  // Replace private message tokens
+  // Replace private message tokens.
   if ($type == 'private_message' && !empty($data['private_message'])) {
 
     $private_message = $data['private_message'];
@@ -140,7 +139,7 @@ function private_message_tokens($type, $tokens, array $data, array $options, Bub
       $replacements += $token_service->generate('date', $created_tokens, ['date' => $private_message->getCreatedTime()], $options, $bubbleable_metadata);
     }
   }
-  // Replace private message thread tokens
+  // Replace private message thread tokens.
   elseif ($type == 'private_message_thread' && !empty($data['private_message_thread'])) {
 
     $private_message_thread = $data['private_message_thread'];
@@ -152,7 +151,7 @@ function private_message_tokens($type, $tokens, array $data, array $options, Bub
           break;
 
         case 'url':
-          $replacements[$original] = Url::fromRoute('private_message.private_message_page', ['private_message_thread' => $private_message_thread->id()], $url_options)->toString();
+          $replacements[$original] = Url::fromRoute('entity.private_message_thread.canonical', ['private_message_thread' => $private_message_thread->id()], $url_options)->toString();
           break;
 
         case 'updated':

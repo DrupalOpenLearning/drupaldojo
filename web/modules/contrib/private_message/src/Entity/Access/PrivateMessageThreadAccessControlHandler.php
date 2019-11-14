@@ -7,6 +7,9 @@ use Drupal\Core\Entity\EntityAccessControlHandler;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Session\AccountInterface;
 
+/**
+ * Access control handler for private message thread entities.
+ */
 class PrivateMessageThreadAccessControlHandler extends EntityAccessControlHandler {
 
   /**
@@ -15,7 +18,7 @@ class PrivateMessageThreadAccessControlHandler extends EntityAccessControlHandle
   protected function checkAccess(EntityInterface $entity, $operation, AccountInterface $account) {
     if ($account->hasPermission('use private messaging system')) {
       switch ($operation) {
-        case 'view': {
+        case 'view':
           if ($entity->isMember($account->id())) {
             $messages = $entity->filterUserDeletedMessages($account);
             if (count($messages)) {
@@ -24,19 +27,17 @@ class PrivateMessageThreadAccessControlHandler extends EntityAccessControlHandle
           }
 
           break;
-        }
 
-        case 'delete': {
+        case 'delete':
           if ($entity->isMember($account->id())) {
             return AccessResult::allowed();
           }
 
           break;
-        }
       }
     }
 
-    return AccessResult::forbidden();
+    return AccessResult::neutral();
   }
 
   /**
@@ -48,4 +49,5 @@ class PrivateMessageThreadAccessControlHandler extends EntityAccessControlHandle
   protected function checkCreateAccess(AccountInterface $account, array $context, $entity_bundle = NULL) {
     return AccessResult::allowedIfHasPermission($account, 'use private messaging system');
   }
+
 }

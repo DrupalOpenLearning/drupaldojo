@@ -15,8 +15,9 @@ settings:
   label: 'Private Message Inbox'
   provider: private_message
   label_display: visible
-  thread_count: '5'
-  ajax_load_count: '5'
+  thread_count: 5
+  ajax_load_count: 5
+  ajax_refresh_rate: 15
 visibility:
   request_path:
     id: request_path

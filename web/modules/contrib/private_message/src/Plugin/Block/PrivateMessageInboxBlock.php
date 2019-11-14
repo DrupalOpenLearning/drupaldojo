@@ -5,64 +5,71 @@ namespace Drupal\private_message\Plugin\Block;
 use Drupal\Core\Access\CsrfTokenGenerator;
 use Drupal\Core\Block\BlockBase;
 use Drupal\Core\Block\BlockPluginInterface;
+use Drupal\Core\Cache\Cache;
 use Drupal\Core\Entity\EntityManagerInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\Core\Url;
 use Drupal\private_message\Service\PrivateMessageServiceInterface;
-use Drupal\user\Entity\User;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Provides the private message inbox block
+ * Provides the private message inbox block.
  *
  * @Block(
  *   id = "private_message_inbox_block",
  *   admin_label = @Translation("Private Message Inbox"),
+ *   category =  @Translation("Private Message"),
  * )
  */
 class PrivateMessageInboxBlock extends BlockBase implements BlockPluginInterface, ContainerFactoryPluginInterface {
 
   /**
-   * The private message service
+   * The private message service.
    *
    * @var \Drupal\private_message\Service\PrivateMessageServiceInterface
    */
   protected $privateMessageService;
 
   /**
-   * The current user
+   * The current user.
    *
    * @var \Drupal\Core\Session\AccountProxyInterface
    */
   protected $currentUser;
 
   /**
-   * The entity manager service
+   * The entity manager service.
    *
    * @var \Drupal\Core\Entity\EntityManagerInterface
    */
   protected $entityManager;
 
   /**
-   * The CSRF token generator service
+   * The CSRF token generator service.
    *
    * @var \Drupal\Core\Access\CsrfTokenGenerator
    */
   protected $csrfToken;
 
   /**
-   * Constructs a PrivateMessageForm object
+   * Constructs a PrivateMessageForm object.
    *
+   * @param array $configuration
+   *   The block configuration.
+   * @param string $plugin_id
+   *   The ID of the plugin.
+   * @param mixed $plugin_definition
+   *   The plugin definition.
    * @param \Drupal\Core\Session\AccountProxyInterface $currentUser
-   *   The current user
+   *   The current user.
    * @param \Drupal\private_message\Service\PrivateMessageServiceInterface $privateMessageService
-   *   The private message service
+   *   The private message service.
    * @param \Drupal\Core\Entity\EntityManagerInterface $entityManager
-   *   The entity manager service
+   *   The entity manager service.
    * @param \Drupal\Core\Access\CsrfTokenGenerator $csrfToken
-   *   The CSRF token generator service
+   *   The CSRF token generator service.
    */
   public function __construct(array $configuration, $plugin_id, $plugin_definition, AccountProxyInterface $currentUser, PrivateMessageServiceInterface $privateMessageService, EntityManagerInterface $entityManager, CsrfTokenGenerator $csrfToken) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
@@ -144,8 +151,8 @@ class PrivateMessageInboxBlock extends BlockBase implements BlockPluginInterface
       $config = $this->getConfiguration();
       $block['#attached']['drupalSettings']['privateMessageInboxBlock']['ajaxRefreshRate'] = $config['ajax_refresh_rate'];
 
-      // Add the default classes, as these are not added when the block output is overridden with
-      // a template
+      // Add the default classes, as these are not added when the block output
+      // is overridden with a template.
       $block['#attributes']['class'][] = 'block';
       $block['#attributes']['class'][] = 'block-private-message';
       $block['#attributes']['class'][] = 'block-private-message-inbox-block';
@@ -154,12 +161,19 @@ class PrivateMessageInboxBlock extends BlockBase implements BlockPluginInterface
     }
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function getCacheTags() {
-    $cache_tags = parent::getCacheTags();
+    return Cache::mergeTags(parent::getCacheTags(), ['private_message_inbox_block:uid:' . $this->currentUser->id()]);
+  }
 
-    $cache_tags[] = 'private_message_inbox_block:uid:' . $this->currentUser->id();
-
-    return $cache_tags;
+  /**
+   * {@inheritdoc}
+   */
+  public function getCacheContexts() {
+    // Vary caching of this block per user.
+    return Cache::mergeContexts(parent::getCacheContexts(), ['user']);
   }
 
   /**
@@ -216,4 +230,5 @@ class PrivateMessageInboxBlock extends BlockBase implements BlockPluginInterface
     $this->configuration['ajax_load_count'] = $form_state->getValue('ajax_load_count');
     $this->configuration['ajax_refresh_rate'] = $form_state->getValue('ajax_refresh_rate');
   }
+
 }

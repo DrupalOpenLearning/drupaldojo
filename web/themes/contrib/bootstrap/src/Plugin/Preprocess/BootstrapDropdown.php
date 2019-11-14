@@ -27,6 +27,7 @@ class BootstrapDropdown extends PreprocessBase implements PreprocessInterface {
 
     $toggle = Element::create($variables->toggle);
     $toggle->setProperty('split', $variables->split);
+    $toggle->setProperty('default_button', $variables->default_button);
 
     // Convert the items into a proper item list.
     $variables->items = [
@@ -77,10 +78,9 @@ class BootstrapDropdown extends PreprocessBase implements PreprocessInterface {
             $wrapper_attributes['hreflang'] = $element['language']->getId();
 
             // Ensure the Url language is set on the object itself.
-            // @todo Possibly a core bug?
-            if (empty($element['url']->getOption('language'))) {
-              $element['url']->setOption('language', $element['language']);
-            }
+            // @todo Revisit, possibly a core bug?
+            // @see https://www.drupal.org/project/bootstrap/issues/2868100
+            $element['url']->setOption('language', $element['language']);
           }
 
           // Preserve query parameters (if any)
@@ -103,12 +103,13 @@ class BootstrapDropdown extends PreprocessBase implements PreprocessInterface {
 
       $items = Element::createStandalone();
 
+      /** @var \Drupal\bootstrap\Utility\Element $primary_action */
       $primary_action = NULL;
       $links = Element::create($variables->links);
 
       // Iterate over all provided "links". The array may be associative, so
       // this cannot rely on the key to be numeric, it must be tracked manually.
-      $i = -1;
+      $i = $variables->default_button ? -1 : 0;
       foreach ($links->children(TRUE) as $key => $child) {
         $i++;
 
@@ -117,11 +118,17 @@ class BootstrapDropdown extends PreprocessBase implements PreprocessInterface {
           $child->setAttribute('formnovalidate', 'formnovalidate');
         }
 
+        // Generate the current timestamp to use with identifiers. This helps
+        // eliminate any render cache issues when dealing with multiple
+        // dropdown elements on the same page, as in a listing.
+        // @see https://www.drupal.org/project/bootstrap/issues/2939166
+        $current_time = \Drupal::time()->getCurrentTime();
+
         // The first item is always the "primary link".
         if ($i === 0) {
           // Must generate an ID for this child because the toggle will use it.
           if (!$child->getAttribute('id')) {
-            $child->setAttribute('id', $child->getProperty('id', Html::getUniqueId('dropdown-item')));
+            $child->setAttribute('id', $child->getProperty('id', Html::getUniqueId("dropdown-item-$current_time")));
           }
           $primary_action = $child->addClass('hidden');
         }
@@ -135,7 +142,7 @@ class BootstrapDropdown extends PreprocessBase implements PreprocessInterface {
           // events to the "dropdown-target" (the original element).
           $id = $child->getAttribute('id');
           if (!$id) {
-            $id = $child->getProperty('id', Html::getUniqueId('dropdown-item'));
+            $id = $child->getProperty('id', Html::getUniqueId("dropdown-item-$current_time"));
             $child->setAttribute('id', $id);
           }
 
@@ -156,18 +163,31 @@ class BootstrapDropdown extends PreprocessBase implements PreprocessInterface {
           }
         }
 
+        // If no HTML ID was found, automatically create one.
+        if ($child->hasProperty('ajax') && !$child->hasProperty('ajax_processed') && !$child->hasProperty('id')) {
+          $child->setProperty('id', $child->getAttribute('id', Html::getUniqueId("ajax-link-$current_time")));
+        }
+
         $items->$key = $child->getArrayCopy();
       }
 
       // Create a toggle button, extracting relevant info from primary action.
-      $toggle = Element::createStandalone([
-        '#type' => 'button',
-        '#attributes' => $primary_action->getAttributes()->getArrayCopy(),
-        '#value' => $primary_action->getProperty('value', $primary_action->getProperty('title', $primary_action->getProperty('text'))),
-      ]);
+      if ($variables->default_button) {
+        $toggle = Element::createStandalone([
+          '#type' => 'button',
+          '#attributes' => $primary_action->getAttributes()->getArrayCopy(),
+          '#value' => $primary_action->getProperty('value', $primary_action->getProperty('title', $primary_action->getProperty('text'))),
+        ]);
 
-      // Remove the "hidden" class that was added to the primary action.
-      $toggle->removeClass('hidden')->removeAttribute('id')->setAttribute('data-dropdown-target', '#' . $primary_action->getAttribute('id'));
+        // Remove the "hidden" class that was added to the primary action.
+        $toggle->removeClass('hidden')->removeAttribute('id')->setAttribute('data-dropdown-target', '#' . $primary_action->getAttribute('id'));
+      }
+      else {
+        $toggle = Element::createStandalone([
+          '#type' => 'button',
+          '#value' => $variables->toggle_label,
+        ]);
+      }
 
       // Make operations smaller.
       if ($operations) {

@@ -1,5 +1,0 @@
-services:
-  social_user_export.overrider:
-    class: \Drupal\social_user_export\SocialUserExportOverrides
-    tags:
-      - {name: config.factory.override, priority: 5}

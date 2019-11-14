@@ -9,7 +9,7 @@ use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\ContentEntityForm;
 use Drupal\Core\Entity\EntityManagerInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
-use Drupal\Core\Entity\Entity\EntityFormDisplay ;
+use Drupal\Core\Entity\Entity\EntityFormDisplay;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\Core\TypedData\TypedDataManagerInterface;
@@ -18,80 +18,108 @@ use Drupal\private_message\Ajax\PrivateMessageLoadNewMessagesCommand;
 use Drupal\private_message\Entity\PrivateMessageThread;
 use Drupal\private_message\Entity\PrivateMessageThreadInterface;
 use Drupal\private_message\Service\PrivateMessageServiceInterface;
-use Drupal\user\entity\User;
+use Drupal\private_message\Service\PrivateMessageThreadManagerInterface;
 use Drupal\user\UserDataInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
+/**
+ * Defines the private message form.
+ */
 class PrivateMessageForm extends ContentEntityForm {
 
   /**
-   * A unique instance identifier for the form
+   * A unique instance identifier for the form.
    *
    * @var int
    */
   protected $formId;
 
   /**
-   * The current user
+   * The current user.
    *
    * @var \Drupal\Core\Session\AccountProxyInterface
    */
   protected $currentUser;
 
   /**
-   * The entity type manager service
+   * The entity type manager service.
    *
    * @var \Drupal\Core\Entity\EntityTypeManagerInterface
    */
   protected $entityTypeManager;
 
   /**
-   * The typed data manager service
+   * The typed data manager service.
    *
    * @var \Drupal\Core\TypedData\TypedDataManagerInterface
    */
   protected $typedDataManager;
 
   /**
-   * The user data service
+   * The user data service.
    *
    * @var \Drupal\user\UserDataInterface
    */
   protected $userData;
 
   /**
-   * The private message configuration
+   * The private message configuration.
    *
    * @var \Drupal\Core\Config\ImmutableConfig
    */
   protected $config;
 
   /**
-   * The private message service
+   * The private message service.
    *
    * @var \Drupal\private_message\Service\PrivateMessageServiceInterface
    */
   protected $privateMessageService;
 
   /**
-   * Constructs a PrivateMessageForm object
+   * The private message thread manager service.
+   *
+   * @var \Drupal\private_message\Service\PrivateMessageThreadManagerInterface
+   */
+  protected $privateMessageThreadManager;
+
+  /**
+   * The user manager service.
+   *
+   * @var \Drupal\user\UserStorageInterface
+   */
+  protected $userManager;
+
+  /**
+   * Constructs a PrivateMessageForm object.
    *
    * @param \Drupal\Core\Entity\EntityManagerInterface $entityManager
-   *   The entity manager service
+   *   The entity manager service.
    * @param \Drupal\Core\Session\AccountProxyInterface $currentUser
-   *   The current user
+   *   The current user.
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
-   *   The entity type manager service
+   *   The entity type manager service.
    * @param \Drupal\Core\TypedData\TypedDataManagerInterface $typedDataManager
-   *   The typed data manager service
+   *   The typed data manager service.
    * @param \Drupal\user\UserDataInterface $userData
-   *   The user data service
+   *   The user data service.
    * @param \Drupal\Core\Config\ConfigFactoryInterface $configFactory
-   *   The configuration factory service
+   *   The configuration factory service.
    * @param \Drupal\private_message\Service\PrivateMessageServiceInterface $privateMessageService
-   *   The private message service
+   *   The private message service.
+   * @param \Drupal\private_message\Service\PrivateMessageThreadManagerInterface $privateMessageThreadManager
+   *   The private message thread manager service.
    */
-  public function __construct(EntityManagerInterface $entityManager, AccountProxyInterface $currentUser, EntityTypeManagerInterface $entityTypeManager, TypedDataManagerInterface $typedDataManager, UserDataInterface $userData, ConfigFactoryInterface $configFactory, PrivateMessageServiceInterface $privateMessageService) {
+  public function __construct(
+    EntityManagerInterface $entityManager,
+    AccountProxyInterface $currentUser,
+    EntityTypeManagerInterface $entityTypeManager,
+    TypedDataManagerInterface $typedDataManager,
+    UserDataInterface $userData,
+    ConfigFactoryInterface $configFactory,
+    PrivateMessageServiceInterface $privateMessageService,
+    PrivateMessageThreadManagerInterface $privateMessageThreadManager
+  ) {
     parent::__construct($entityManager);
 
     $this->currentUser = $currentUser;
@@ -100,6 +128,8 @@ class PrivateMessageForm extends ContentEntityForm {
     $this->userData = $userData;
     $this->config = $configFactory->get('private_message.settings');
     $this->privateMessageService = $privateMessageService;
+    $this->privateMessageThreadManager = $privateMessageThreadManager;
+    $this->userManager = $entityManager->getStorage('user');
   }
 
   /**
@@ -113,10 +143,19 @@ class PrivateMessageForm extends ContentEntityForm {
       $container->get('typed_data_manager'),
       $container->get('user.data'),
       $container->get('config.factory'),
-      $container->get('private_message.service')
+      $container->get('private_message.service'),
+      $container->get('private_message.thread_manager')
     );
   }
 
+  /**
+   * Set the ID of the form.
+   *
+   * This allows for the form to be used multiple times on a page.
+   *
+   * @param mixed $id
+   *   An ID required to be unique each time the form is called on a page.
+   */
   public function setFormId($id) {
     $this->formId = Html::escape($id);
   }
@@ -146,13 +185,13 @@ class PrivateMessageForm extends ContentEntityForm {
         'callback' => '::ajaxCallback',
       ];
 
-      // Only to do these when using #ajax
+      // Only to do these when using #ajax.
       $form['#attached']['library'][] = 'private_message/message_form';
       $form['message']['widget'][0]['#attributes']['autofocus'] = 'autofocus';
-	}
-	else {
-      // Create a dummy private message thread form so as to retrieve
-      // the members element from it
+    }
+    else {
+      // Create a dummy private message thread form so as to retrieve the
+      // members element from it.
       $private_message_thread = PrivateMessageThread::create();
       $form_copy = $form;
       $form_state_copy = clone($form_state);
@@ -161,9 +200,9 @@ class PrivateMessageForm extends ContentEntityForm {
       $form['members'] = $form_copy['members'];
 
       $form['#validate'][] = '::validateMembers';
-	}
+    }
 
-    if($this->config->get('hide_form_filter_tips')) {
+    if ($this->config->get('hide_form_filter_tips')) {
       $form['#after_build'][] = '::afterBuild';
     }
 
@@ -171,33 +210,35 @@ class PrivateMessageForm extends ContentEntityForm {
   }
 
   /**
-   * Validates that submitted members have permission to use the Private message system.
-   * This validation is not added automatically, as the members field is not part of the
-   * PrivateMessage entity, but rather something that has been shoehorned in from
-   * the PrivateMessageThread entity, to make for a better user experience, by creating
-   * a thread and a message in a single form.
+   * Validate members that have been added to a private message thread.
+   *
+   * Validates that submitted members have permission to use the Private message
+   * system. This validation is not added automatically, as the members field is
+   * not part of the Private Message entity, but rather something that has been
+   * shoehorned in from the PrivateMessageThread entity, to make for a better
+   * user experience, by creating a thread and a message in a single form.
    *
    * @see \Drupal\private_message\Entity\PrivateMessageThead::baseFieldDefinitions
    */
   public function validateMembers(array &$form, FormStateInterface $form_state) {
-    // The members form element was loaded from the PrivateMessageThread entity type.
-    // As it is not a part of the PrivateMessage entity, for which this form is built, the
-    // constraints that are a part of the field on the PrivateMessageThread are not applied.
-    // As such, the constraints need to be checked manually.
-
-    // First, get the PrivateMessageThread entity type
+    // The members form element was loaded from the PrivateMessageThread entity
+    // type. As it is not a part of the PrivateMessage entity, for which this
+    // form is built, the constraints that are a part of the field on the
+    // Private Message Thread are not applied. As such, the constraints need to
+    // be checked manually.
+    // First, get the PrivateMessageThread entity type.
     $entity_type = $this->entityTypeManager->getDefinition('private_message_thread');
-    // Next, load the field definitions as defined on the entity type
+    // Next, load the field definitions as defined on the entity type.
     $field_definitions = PrivateMessageThread::baseFieldDefinitions($entity_type);
 
-    // Get the member's field, as this is the field to be validated
+    // Get the member's field, as this is the field to be validated.
     $members_field = $field_definitions['members'];
 
-    // Retrieve any members submitted on the form
+    // Retrieve any members submitted on the form.
     $members = [];
     foreach ($form_state->getValue('members') as $info) {
       if (is_array($info) && is_numeric($info['target_id'])) {
-        $user = User::load($info['target_id']);
+        $user = $this->userManager->load($info['target_id']);
         if ($user) {
           $members[] = $user;
         }
@@ -207,12 +248,12 @@ class PrivateMessageForm extends ContentEntityForm {
     // Get a typed data element that can be used for validation.
     $typed_data = $this->typedDataManager->create($members_field, $members);
 
-    // Validate the submitted members
+    // Validate the submitted members.
     $violations = $typed_data->validate();
 
-    // Check to see if any contraint violations were found
+    // Check to see if any contraint violations were found.
     if ($violations->count() > 0) {
-      // Output any errors for found constraint violations
+      // Output any errors for found constraint violations.
       foreach ($violations as $violation) {
         $form_state->setError($form['members'], $violation->getMessage());
       }
@@ -220,7 +261,7 @@ class PrivateMessageForm extends ContentEntityForm {
   }
 
   /**
-   * Ajax callback for the PrivateMessageForm
+   * Ajax callback for the PrivateMessageForm.
    */
   public function ajaxCallback(array $form, FormStateInterface $form_state) {
     $response = new AjaxResponse();
@@ -233,7 +274,7 @@ class PrivateMessageForm extends ContentEntityForm {
   }
 
   /**
-   * After build callback for the Private Message Form
+   * After build callback for the Private Message Form.
    */
   public function afterBuild(array $form, FormStateInterface $form_state) {
     $form['message']['widget'][0]['format']['#access'] = FALSE;
@@ -248,43 +289,29 @@ class PrivateMessageForm extends ContentEntityForm {
 
     $members = $form_state->get('thread_members');
     if (!$members) {
-      // Generate an array containing the members of the thread
-      $current_user = User::load($this->currentUser->id());
+      // Generate an array containing the members of the thread.
+      $current_user = $this->userManager->load($this->currentUser->id());
+
       $members = [$current_user];
       foreach ($form_state->getValue('members') as $info) {
-        $user = User::load($info['target_id']);
+        $user = $this->userManager->load($info['target_id']);
         if ($user) {
           $members[] = $user;
         }
       }
     }
+
     // Get a private message thread containing the given users.
     $private_message_thread = $this->privateMessageService->getThreadForMembers($members);
 
-    // Add the new message to the thread and save.
-    $private_message_thread->addMessage($this->entity)->save();
-
-    $mailManager = \Drupal::service('plugin.manager.mail');
-    $params = [
-      'private_message' => $this->getEntity(),
-      'private_message_thread' => $private_message_thread,
-    ];
-
-    foreach ($members as $member) {
-      if($member->id() != $this->currentUser->id()) {
-        $params['member'] = $member;
-        $send = $this->userData->get('private_message', $member->id(), 'email_notification');
-        $send = is_numeric($send) ? (bool) $send : ($this->config->get('enable_email_notifications') && $this->config->get('send_by_default'));
-        if ($send) {
-          $mailManager->mail('private_message', 'message_notification', $member->getEmail(), $member->getPreferredLangcode(), $params);
-        }
-      }
-    }
+    // Save the thread.
+    $this->privateMessageThreadManager->saveThread($this->entity, $members, [], $private_message_thread);
 
     // Send the user to the private message page. As this thread is the newest,
-    // it wll be at the top of the list
+    // it wll be at the top of the list.
     $form_state->setRedirect('entity.private_message_thread.canonical', ['private_message_thread' => $private_message_thread->id()]);
 
     return $status;
   }
+
 }

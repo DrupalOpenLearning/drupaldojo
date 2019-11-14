@@ -4,33 +4,38 @@ namespace Drupal\private_message\Ajax;
 
 use Drupal\Core\Ajax\CommandInterface;
 
-class PrivateMessageInsertMessagesCommand implements CommandInterface {
+/**
+ * Base class for Ajax command to insert messages into a private message thread.
+ */
+abstract class PrivateMessageInsertMessagesCommand implements CommandInterface {
 
   /**
-   * The type of messages to be inserted in the page. Possible values:
+   * The type of messages to be inserted in the page.
+   *
+   * Possible values:
    *   - new
-   *   - previous
+   *   - previous.
    *
    * @var string
    */
   protected $insertType;
 
   /**
-   * The HTML for the messages to be inserted in the page
+   * The HTML for the messages to be inserted in the page.
    *
    * @var string
    */
   protected $messages;
 
   /**
-   * Construct a PrivateMessageInsertMessagesCommand object
+   * Construct a PrivateMessageInsertMessagesCommand object.
    *
    * @param string $insertType
    *   The type of messages to be inserted in the page. Possible values:
    *     - new
-   *     - previous
+   *     - previous.
    * @param string $messages
-   *   The HTML for the messages to be inserted in the page
+   *   The HTML for the messages to be inserted in the page.
    */
   public function __construct($insertType, $messages) {
     $this->insertType = $insertType;
@@ -47,4 +52,5 @@ class PrivateMessageInsertMessagesCommand implements CommandInterface {
       'messages' => $this->messages,
     ];
   }
+
 }

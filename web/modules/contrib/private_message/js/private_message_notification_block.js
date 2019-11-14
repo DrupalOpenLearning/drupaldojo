@@ -1,12 +1,20 @@
-/*global jQuery, Drupal, drupalSettings, window*/
-/*jslint white:true, multivar, this, browser:true*/
+/**
+ * @file
+ * JavaScript functionality for the private message notification block.
+ */
 
-(function($, Drupal, drupalSettings, window)
-{
+/*global jQuery, Drupal, drupalSettings, window*/
+/*jslint white:true, this, browser:true*/
+
+(function ($, Drupal, drupalSettings, window) {
+
   "use strict";
 
   var initialized, notificationWrapper, refreshRate, checkingCount;
 
+  /**
+   * Trigger Ajax Commands.
+   */
   function triggerCommands(data) {
     var ajaxObject = Drupal.ajax({
       url: "",
@@ -15,12 +23,12 @@
       progress: false
     });
 
-    // Trigger any any ajax commands in the response
+    // Trigger any any ajax commands in the response.
     ajaxObject.success(data, "success");
   }
 
   function updateCount(unreadThreadCount) {
-    if(unreadThreadCount) {
+    if (unreadThreadCount) {
       notificationWrapper.addClass("unread-threads");
     }
     else {
@@ -30,13 +38,16 @@
     notificationWrapper.find(".private-message-page-link").text(unreadThreadCount);
   }
 
+  /**
+   * Retrieve the new unread thread count from the server using AJAX.
+   */
   function checkCount() {
-    if(!checkingCount) {
+    if (!checkingCount) {
       checkingCount = true;
 
       $.ajax({
         url:drupalSettings.privateMessageNotificationBlock.newMessageCountCallback,
-        success:function(data) {
+        success:function (data) {
           triggerCommands(data);
 
           checkingCount = false;
@@ -45,26 +56,31 @@
       });
     }
   }
- 
+
+  /**
+   * Initializes the script.
+   */
   function init() {
-    if(!initialized) {
+    if (!initialized) {
       initialized = true;
 
-      if(drupalSettings.privateMessageNotificationBlock.ajaxRefreshRate) {
+      if (drupalSettings.privateMessageNotificationBlock.ajaxRefreshRate) {
         notificationWrapper = $(".private-message-notification-wrapper");
         refreshRate = drupalSettings.privateMessageNotificationBlock.ajaxRefreshRate * 1000;
-        window.setTimeout(checkCount, refreshRate);
+        if (refreshRate) {
+          window.setTimeout(checkCount, refreshRate);
+        }
       }
     }
   }
- 
+
   Drupal.behaviors.privateMessageNotificationBlock = {
-    attach:function() {
+    attach:function () {
 
       init();
 
-      Drupal.AjaxCommands.prototype.privateMessageUpdateUnreadThreadCount = function(ajax, response) {
-        // stifles jSlint warning.
+      Drupal.AjaxCommands.prototype.privateMessageUpdateUnreadThreadCount = function (ajax, response) {
+        // Stifles jSlint warning.
         ajax = ajax;
 
         updateCount(response.unreadThreadCount);

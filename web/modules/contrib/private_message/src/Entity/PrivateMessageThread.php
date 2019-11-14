@@ -4,41 +4,39 @@ namespace Drupal\private_message\Entity;
 
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Entity\ContentEntityBase;
-use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Drupal\Core\Session\AccountInterface;
-use Drupal\private_message\Entity\PrivateMessageInterface;
-use Drupal\private_message\Entity\PrivateMessageThreadAccessTime;
-use Drupal\private_message\Entity\PrivateMessageThreadDeleteTime;
 
- /**
-  * @ContentEntityType(
-  *   id = "private_message_thread",
-  *   label = @Translation("Private Message Thread"),
-  *   handlers = {
-  *     "view_builder" = "Drupal\private_message\Entity\Builder\PrivateMessageThreadViewBuilder",
-  *     "views_data" = "Drupal\views\EntityViewsData",
-  *     "access" = "Drupal\private_message\Entity\Access\PrivateMessageThreadAccessControlHandler",
-  *     "form" = {
-  *       "delete" = "Drupal\private_message\Form\PrivateMessageThreadDeleteForm",
-  *     },
-  *   },
-  *   base_table = "private_message_threads",
-  *   admin_permission = "administer private messages",
-  *   fieldable = TRUE,
-  *   entity_keys = {
-  *     "id" = "id",
-  *     "uuid" = "uuid"
-  *   },
-  *   links = {
-  *     "canonical" = "/private_messages/{private_message_thread}",
-  *     "delete-form" = "/private_messagethread/{private_message_thread}/delete",
-  *   },
-  *   field_ui_base_route = "private_message.private_message_thread_settings",
-  * )
-  */
+/**
+ * Defines the Private Message Thread entity.
+ *
+ * @ContentEntityType(
+ *   id = "private_message_thread",
+ *   label = @Translation("Private Message Thread"),
+ *   handlers = {
+ *     "view_builder" = "Drupal\private_message\Entity\Builder\PrivateMessageThreadViewBuilder",
+ *     "views_data" = "Drupal\views\EntityViewsData",
+ *     "access" = "Drupal\private_message\Entity\Access\PrivateMessageThreadAccessControlHandler",
+ *     "form" = {
+ *       "delete" = "Drupal\private_message\Form\PrivateMessageThreadDeleteForm",
+ *     },
+ *   },
+ *   base_table = "private_message_threads",
+ *   admin_permission = "administer private messages",
+ *   fieldable = TRUE,
+ *   entity_keys = {
+ *     "id" = "id",
+ *     "uuid" = "uuid"
+ *   },
+ *   links = {
+ *     "canonical" = "/private_messages/{private_message_thread}",
+ *     "delete-form" = "/private_messagethread/{private_message_thread}/delete",
+ *   },
+ *   field_ui_base_route = "private_message.private_message_thread_settings",
+ * )
+ */
 class PrivateMessageThread extends ContentEntityBase implements PrivateMessageThreadInterface {
 
   /**
@@ -69,7 +67,7 @@ class PrivateMessageThread extends ContentEntityBase implements PrivateMessageTh
   }
 
   /**
-   * @inheritdoc}
+   * {@inheritdoc}
    */
   public function isMember($id) {
     $members = $this->getMembers();
@@ -82,7 +80,7 @@ class PrivateMessageThread extends ContentEntityBase implements PrivateMessageTh
     return FALSE;
   }
 
-   /**
+  /**
    * {@inheritdoc}
    */
   public function addMessage(PrivateMessageInterface $privateMessage) {
@@ -117,7 +115,7 @@ class PrivateMessageThread extends ContentEntityBase implements PrivateMessageTh
       $filtered_messages = array_slice($messages, -1 * \Drupal::config('private_message_thread.settings')->get('message_count'));
       $first_message = array_shift($filtered_messages);
       $first_key = $first_message->id();
-      foreach ($list->referencedEntities() as $index => $list_item) {
+      foreach ($list->referencedEntities() as $list_item) {
         if ($list_item->id() < $first_key) {
           $list->removeItem(0);
         }
@@ -148,7 +146,7 @@ class PrivateMessageThread extends ContentEntityBase implements PrivateMessageTh
   public function addLastAccessTime(AccountInterface $account) {
     $last_access_time = PrivateMessageThreadAccessTime::create([
       'owner' => $account->id(),
-      'access_time' => REQUEST_TIME,
+      'access_time' => \Drupal::time()->getRequestTime(),
     ]);
 
     $this->get('last_access_time')->appendItem($last_access_time);
@@ -193,7 +191,7 @@ class PrivateMessageThread extends ContentEntityBase implements PrivateMessageTh
     $private_message_access_time = $this->getLastAccessTime($account);
 
     if ($private_message_access_time) {
-      $private_message_access_time->entity->setAccessTime(REQUEST_TIME)->save();
+      $private_message_access_time->entity->setAccessTime(\Drupal::time()->getRequestTime())->save();
     }
     else {
       $this->addLastAccessTime($account);
@@ -257,7 +255,7 @@ class PrivateMessageThread extends ContentEntityBase implements PrivateMessageTh
     $private_message_delete_time = $this->getLastDeleteTime($account);
 
     if ($private_message_delete_time) {
-      $private_message_delete_time->setDeleteTime(REQUEST_TIME);
+      $private_message_delete_time->setDeleteTime(\Drupal::time()->getRequestTime());
       $private_message_delete_time->save();
     }
     else {
@@ -309,7 +307,6 @@ class PrivateMessageThread extends ContentEntityBase implements PrivateMessageTh
    */
   public function filterUserDeletedMessages(AccountInterface $account) {
     $last_delete_timestamp = $this->getLastDeleteTimestamp($account);
-    $list = $this->get('private_messages');
     $messages = $this->getMessages();
     $start_index = FALSE;
     foreach ($messages as $index => $message) {
@@ -320,7 +317,7 @@ class PrivateMessageThread extends ContentEntityBase implements PrivateMessageTh
       }
     }
 
-    if($start_index !== FALSE) {
+    if ($start_index !== FALSE) {
       return array_slice($messages, $start_index);
     }
 
@@ -354,16 +351,16 @@ class PrivateMessageThread extends ContentEntityBase implements PrivateMessageTh
   public static function baseFieldDefinitions(EntityTypeInterface $entityType) {
     $fields = parent::baseFieldDefinitions($entityType);
 
-    $fields['id']->setLabel(t('Custom private message thread ID'))
+    $fields['id']->setLabel(t('Private message thread ID'))
       ->setDescription(t('The private message thread ID.'));
 
     $fields['uuid']->setDescription(t('The custom private message thread UUID.'));
 
-     $fields['updated'] = BaseFieldDefinition::create('changed')
+    $fields['updated'] = BaseFieldDefinition::create('changed')
       ->setLabel(t('Updated'))
       ->setDescription(t('The most recent time at which the thread was updated'));
 
-   // Member(s) of the private message thread
+    // Member(s) of the private message thread.
     // Entity reference field, holds the reference to user objects.
     $fields['members'] = BaseFieldDefinition::create('entity_reference')
       ->setLabel(t('Member(s)'))
@@ -390,7 +387,7 @@ class PrivateMessageThread extends ContentEntityBase implements PrivateMessageTh
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
 
-    // Private messages in this thread
+    // Private messages in this thread.
     // Entity reference field, holds the reference to user objects.
     $fields['private_messages'] = BaseFieldDefinition::create('entity_reference')
       ->setLabel(t('Messages'))
@@ -404,21 +401,23 @@ class PrivateMessageThread extends ContentEntityBase implements PrivateMessageTh
       ])
       ->setDisplayConfigurable('view', TRUE);
 
-    // Last access timestamps for each member, representing the last
-    // time at which they accessed the private message thread
+    // Last access
+    // Timestamps for each member, representing the last time at which they
+    // accessed the private message thread.
     $fields['last_access_time'] = BaseFieldDefinition::create('entity_reference')
-      ->setLabel(t('Last Access TImes'))
+      ->setLabel(t('Last Access Times'))
       ->setDescription(t('Timestamps at which members of this private message thread last accessed the thread'))
       ->setSetting('target_type', 'pm_thread_access_time')
       ->setSetting('handler', 'default')
       ->setCardinality(FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED);
 
-    // Last delete - timestamps for each member, representing the last
-    // time at which they deleted the private message thread. Note that
-    // the thread is only deleted from the database if/when all members have
-    // deleted the thread. Until that point, this value is used to determine the first
-    // message to be shown to a user if they have deleted the thread, then re-entered
-    // a conversation with the other members of the thread.
+    // Last delete
+    // Timestamps for each member, representing the last time at which they
+    // deleted the private message thread. Note that the thread is only deleted
+    // from the database if/when all members have deleted the thread. Until that
+    // point, this value is used to determine the first message to be shown to a
+    // user if they have deleted the thread, then re-entered a conversation with
+    // the other members of the thread.
     $fields['last_delete_time'] = BaseFieldDefinition::create('entity_reference')
       ->setLabel(t('Last Delete Times'))
       ->setDescription(t('Timestamps at which members of this private message thread last deleted the thread'))
@@ -440,22 +439,23 @@ class PrivateMessageThread extends ContentEntityBase implements PrivateMessageTh
   }
 
   /**
-   * Delete the thread from the database, as well as all reference entities
+   * Delete the thread from the database, as well as all reference entities.
    */
   private function deleteReferencedEntities() {
     $messages = $this->getMessages();
-    foreach($messages as $message) {
+    foreach ($messages as $message) {
       $message->delete();
     }
 
     $last_access_times = $this->getLastAccessTimes();
-    foreach($last_access_times as $last_access_time) {
+    foreach ($last_access_times as $last_access_time) {
       $last_access_time->delete();
     }
 
     $last_delete_times = $this->getLastDeleteTimes();
-    foreach($last_delete_times as $last_delete_time) {
+    foreach ($last_delete_times as $last_delete_time) {
       $last_delete_time->delete();
     }
   }
+
 }

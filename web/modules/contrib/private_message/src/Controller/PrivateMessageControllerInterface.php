@@ -2,27 +2,29 @@
 
 namespace Drupal\private_message\Controller;
 
+/**
+ * Handles page callbacks for the Private Message module.
+ */
 interface PrivateMessageControllerInterface {
 
   /**
-   * The Private message page on which users will be able to create, view, and reply
-   * to private messages.
+   * The Private message page.
    */
   public function privateMessagePage();
 
   /**
-   * The page on which settings specific to private message entities can be adjusted
+   * The private message module settings page.
    */
   public function pmSettingsPage();
 
   /**
-   * The page on which settings specific to private message threads can be adjusted
+   * The settings page specific to private message threads.
    */
   public function pmThreadSettingsPage();
 
   /**
-   * The page on which preparation of the uninstallation of the private message module
-   * can be executed.
+   * The page for preparing to uninstall the module.
    */
   public function adminUninstallPage();
+
 }

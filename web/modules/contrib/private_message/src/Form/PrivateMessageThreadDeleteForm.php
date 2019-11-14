@@ -8,7 +8,7 @@ use Drupal\Core\Url;
 use Drupal\user\Entity\User;
 
 /**
- * Provides a form for deleting a private_message_thread entity.
+ * Form definition for the private message delete form.
  */
 class PrivateMessageThreadDeleteForm extends ContentEntityConfirmFormBase {
 
@@ -18,7 +18,7 @@ class PrivateMessageThreadDeleteForm extends ContentEntityConfirmFormBase {
   public function getQuestion() {
     $members = $this->getEntity()->getMembers();
     $member_names = [];
-    foreach($members as $member) {
+    foreach ($members as $member) {
       $member_names[] = $member->getDisplayName();
     }
 
@@ -50,4 +50,5 @@ class PrivateMessageThreadDeleteForm extends ContentEntityConfirmFormBase {
 
     $form_state->setRedirect('private_message.private_message_page');
   }
+
 }

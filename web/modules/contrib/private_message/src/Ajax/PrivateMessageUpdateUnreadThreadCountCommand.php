@@ -4,20 +4,23 @@ namespace Drupal\private_message\Ajax;
 
 use Drupal\Core\Ajax\CommandInterface;
 
+/**
+ * Ajax command to update the number of unread threads.
+ */
 class PrivateMessageUpdateUnreadThreadCountCommand implements CommandInterface {
 
   /**
-   * The number of unread threads
+   * The number of unread threads.
    *
    * @var int
    */
   protected $unreadThreadCount;
 
   /**
-   * Construct a PrivateMessageMembersAutocompleteResponseCommand object
+   * Constructs a PrivateMessageMembersAutocompleteResponseCommand object.
    *
    * @param int $unreadThreadCount
-   *   The number of unread threads
+   *   The number of unread threads.
    */
   public function __construct($unreadThreadCount) {
     $this->unreadThreadCount = $unreadThreadCount;
@@ -32,4 +35,5 @@ class PrivateMessageUpdateUnreadThreadCountCommand implements CommandInterface {
       'unreadThreadCount' => $this->unreadThreadCount,
     ];
   }
+
 }

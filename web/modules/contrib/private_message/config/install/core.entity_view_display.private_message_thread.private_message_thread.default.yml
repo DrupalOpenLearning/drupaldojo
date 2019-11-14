@@ -28,9 +28,9 @@ content:
     region: content
     label: above
     settings:
-      message_count: '7'
-      ajax_previous_load_count: '5'
-      ajax_refresh_rate: '20'
+      message_count: 7
+      ajax_previous_load_count: 5
+      ajax_refresh_rate: 20
       message_order: asc
     third_party_settings: {  }
 hidden:

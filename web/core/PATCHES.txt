@@ -6,14 +6,22 @@ Source: https://www.drupal.org/files/issues/color-optional-html-preview-2844190-
 
 
 Restrict images to this site blocks image style derivatives
-Source: https://www.drupal.org/files/issues/image_restrict_image_styles-2528214-19.patch
-
-
-Fix SQL error when importing translations
-Source: https://www.drupal.org/files/issues/2599228-31.patch
+Source: https://www.drupal.org/files/issues/2018-10-26/2528214-47.patch
 
 
 Optimize getCommentedEntity()
-Source: https://www.drupal.org/files/issues/get-commented-entity-2580551.52.patch
+Source: https://www.drupal.org/files/issues/2018-12-28/2580551-72.patch
+
+
+#states cannot check/uncheck 'radios' and 'checkboxes' elements
+Source: https://www.drupal.org/files/issues/drupal-994360-74-states-checkboxes-checked.patch
+
+
+Multiple usages of FieldPluginBase::getEntity do not check for NULL, leading to WSOD
+Source: https://www.drupal.org/files/issues/2019-05-06/drupal-Multiple-usages-of-FieldPluginBase-getEntity-3007424-15.patch
+
+
+Default role id causes issues with validation on VBO
+Source: https://www.drupal.org/files/issues/2018-05-24/2974925-default-rid-config-causes-illegal-error.patch
 
 

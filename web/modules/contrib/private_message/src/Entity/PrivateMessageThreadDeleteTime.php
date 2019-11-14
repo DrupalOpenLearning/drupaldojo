@@ -3,28 +3,28 @@
 namespace Drupal\private_message\Entity;
 
 use Drupal\Core\Entity\ContentEntityBase;
-use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
-use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Drupal\user\UserInterface;
 
- /**
-  * @ContentEntityType(
-  *   id = "pm_thread_delete_time",
-  *   label = @Translation("Private Message Thread Delete Time"),
-  *   handlers = {
-  *     "views_data" = "Drupal\views\EntityViewsData",
-  *     "access" = "Drupal\private_message\Entity\Access\PrivateMessageThreadDeleteTimeAccessControlHandler",
-  *   },
-  *   base_table = "pm_thread_delete_time",
-  *   fieldable = FALSE,
-  *   entity_keys = {
-  *     "id" = "id",
-  *     "uuid" = "uuid"
-  *   },
-  * )
-  */
+/**
+ * Defines the PrivateMessageThreadDeleteTime entity.
+ *
+ * @ContentEntityType(
+ *   id = "pm_thread_delete_time",
+ *   label = @Translation("Private Message Thread Delete Time"),
+ *   handlers = {
+ *     "views_data" = "Drupal\views\EntityViewsData",
+ *     "access" = "Drupal\private_message\Entity\Access\PrivateMessageThreadDeleteTimeAccessControlHandler",
+ *   },
+ *   base_table = "pm_thread_delete_time",
+ *   fieldable = FALSE,
+ *   entity_keys = {
+ *     "id" = "id",
+ *     "uuid" = "uuid"
+ *   },
+ * )
+ */
 class PrivateMessageThreadDeleteTime extends ContentEntityBase implements PrivateMessageThreadDeleteTimeInterface {
 
   /**
@@ -83,9 +83,9 @@ class PrivateMessageThreadDeleteTime extends ContentEntityBase implements Privat
     $fields['uuid']->setDescription(t('The custom private message UUID.'));
 
     // Owner of the private message.
-    // Entity reference field, holds the reference to the user object.
-    // The view shows the user name field of the user.
-    // No form field is provided, as the user will always be the current user
+    // Entity reference field, holds the reference to the user object. The view
+    // shows the user name field of the user. No form field is provided, as the
+    // user will always be the current user.
     $fields['owner'] = BaseFieldDefinition::create('entity_reference')
       ->setLabel(t('User Name'))
       ->setDescription(t('The Name of the associated user.'))
@@ -98,4 +98,5 @@ class PrivateMessageThreadDeleteTime extends ContentEntityBase implements Privat
 
     return $fields;
   }
+
 }

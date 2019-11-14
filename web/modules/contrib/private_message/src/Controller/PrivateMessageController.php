@@ -4,66 +4,72 @@ namespace Drupal\private_message\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Entity\EntityManagerInterface;
-use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Form\FormBuilderInterface;
 use Drupal\Core\Session\AccountProxyInterface;
-use Drupal\private_message\Entity\PrivateMessage;
-use Drupal\private_message\Entity\PrivateMessageThread;
 use Drupal\private_message\Service\PrivateMessageServiceInterface;
-use Drupal\user\Entity\User;
 use Drupal\user\UserDataInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
+/**
+ * Private message page controller. Returns render arrays for the page.
+ */
 class PrivateMessageController extends ControllerBase implements PrivateMessageControllerInterface {
 
   /**
-   * The current user
+   * The current user.
    *
    * @var \Drupal\Core\Session\AccountProxyInterface
    */
   protected $currentUser;
 
   /**
-   * The entity manager service
+   * The entity manager service.
    *
    * @var \Drupal\Core\Entity\EntityManagerInterface
    */
   protected $entityManager;
 
   /**
-   * The form builder interface
+   * The form builder interface.
    *
    * @var \Drupal\Core\Form\FormBuilderInterface
    */
   protected $formBuilder;
 
   /**
-   * The user data service
+   * The user data service.
    *
    * @var \Drupal\user\UserDataInterface
    */
   protected $userData;
 
   /**
-   * The private message service
+   * The private message service.
    *
    * @var \Drupal\private_message\Service\PrivateMessageServiceInterface
    */
   protected $privateMessageService;
 
   /**
-   * Constructs a PrivateMessageForm object
+   * The user manager service.
+   *
+   * @var \Drupal\user\UserStorageInterface
+   */
+  protected $userManager;
+
+  /**
+   * Constructs a PrivateMessageForm object.
    *
    * @param \Drupal\Core\Session\AccountProxyInterface $currentUser
-   *   The current user
+   *   The current user.
    * @param \Drupal\Core\Entity\EntityManagerInterface $entityManager
-   *   The entity manager service
+   *   The entity manager service.
    * @param \Drupal\Core\Form\FormBuilderInterface $formBuilder
-   *   The form builder service
+   *   The form builder service.
    * @param \Drupal\user\UserDataInterface $userData
-   *   The user data service
+   *   The user data service.
    * @param \Drupal\private_message\Service\PrivateMessageServiceInterface $privateMessageService
-   *   The private message service
+   *   The private message service.
    */
   public function __construct(AccountProxyInterface $currentUser, EntityManagerInterface $entityManager, FormBuilderInterface $formBuilder, UserDataInterface $userData, PrivateMessageServiceInterface $privateMessageService) {
     $this->currentUser = $currentUser;
@@ -71,6 +77,7 @@ class PrivateMessageController extends ControllerBase implements PrivateMessageC
     $this->formBuilder = $formBuilder;
     $this->userData = $userData;
     $this->privateMessageService = $privateMessageService;
+    $this->userManager = $entityManager->getStorage('user');
   }
 
   /**
@@ -92,14 +99,14 @@ class PrivateMessageController extends ControllerBase implements PrivateMessageC
   public function privateMessagePage() {
     $this->privateMessageService->updateLastCheckTime();
 
-    $user = User::load($this->currentUser->id());
+    $user = $this->userManager->load($this->currentUser->id());
 
     $private_message_thread = $this->privateMessageService->getFirstThreadForUser($user);
 
     if ($private_message_thread) {
       $view_builder = $this->entityManager->getViewBuilder('private_message_thread');
-      // No wrapper is provided, as the full view mode of the entity already provides
-      // the #private-message-page wrapper
+      // No wrapper is provided, as the full view mode of the entity already
+      // provides the #private-message-page wrapper.
       $page = $view_builder->view($private_message_thread);
     }
     else {
@@ -156,4 +163,5 @@ class PrivateMessageController extends ControllerBase implements PrivateMessageC
       'form' => $this->formBuilder->getForm('Drupal\private_message\Form\AdminUninstallForm'),
     ];
   }
+
 }

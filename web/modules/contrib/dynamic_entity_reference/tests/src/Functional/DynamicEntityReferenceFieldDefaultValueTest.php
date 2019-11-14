@@ -2,12 +2,11 @@
 
 namespace Drupal\Tests\dynamic_entity_reference\Functional;
 
-use Drupal\Component\Utility\Unicode;
-use Drupal\config\Tests\SchemaCheckTestTrait;
 use Drupal\field\Entity\FieldConfig;
 use Drupal\field\Entity\FieldStorageConfig;
 use Drupal\node\Entity\Node;
 use Drupal\Tests\BrowserTestBase;
+use Drupal\Tests\SchemaCheckTestTrait;
 
 /**
  * Tests dynamic entity reference field default values storage in CMI.
@@ -71,7 +70,7 @@ class DynamicEntityReferenceFieldDefaultValueTest extends BrowserTestBase {
     // Create a node to be referenced.
     $referenced_node = $this->drupalCreateNode(['type' => 'referenced_content']);
 
-    $field_name = Unicode::strtolower($this->randomMachineName());
+    $field_name = mb_strtolower($this->randomMachineName());
     $field_storage = FieldStorageConfig::create([
       'field_name' => $field_name,
       'entity_type' => 'node',

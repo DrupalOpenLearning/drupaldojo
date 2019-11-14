@@ -5,6 +5,9 @@ namespace Drupal\private_message\Entity\Builder;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityViewBuilder;
 
+/**
+ * Build handler for rpivate messages.
+ */
 class PrivateMessageViewBuilder extends EntityViewBuilder {
 
   /**
@@ -21,4 +24,5 @@ class PrivateMessageViewBuilder extends EntityViewBuilder {
 
     return $build;
   }
+
 }

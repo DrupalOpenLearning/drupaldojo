@@ -5,15 +5,19 @@ namespace Drupal\private_message\Form;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 
+/**
+ * Defines the configuration form for the private message module.
+ */
 class ConfigForm extends ConfigFormBase {
-  /** 
+
+  /**
    * {@inheritdoc}
    */
   public function getFormId() {
     return 'private_message_config_form';
   }
 
-  /** 
+  /**
    * {@inheritdoc}
    */
   protected function getEditableConfigNames() {
@@ -22,7 +26,7 @@ class ConfigForm extends ConfigFormBase {
     ];
   }
 
-  /** 
+  /**
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
@@ -59,7 +63,7 @@ class ConfigForm extends ConfigFormBase {
     return parent::buildForm($form, $form_state);
   }
 
-  /** 
+  /**
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
@@ -71,4 +75,5 @@ class ConfigForm extends ConfigFormBase {
 
     parent::submitForm($form, $form_state);
   }
+
 }

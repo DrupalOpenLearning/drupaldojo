@@ -9,11 +9,13 @@ use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Field\Plugin\Field\FieldWidget\EntityReferenceAutocompleteWidget;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\Core\Url;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
- * A widget bar.
+ * Defines the private message thread member widget.
  *
  * @FieldWidget(
  *   id = "private_message_thread_member_widget",
@@ -26,18 +28,32 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class PrivateMessageThreadMemberWidget extends EntityReferenceAutocompleteWidget implements ContainerFactoryPluginInterface {
 
   /**
-   * The CSRF token generator service
+   * The CSRF token generator service.
    *
    * @var \Drupal\Core\Access\CsrfTokenGenerator
    */
-  protected $csrfToken;
+  protected $csrfTokenGenerator;
 
   /**
-   * Constructs a PrivateMessageThreadMemberWidget object
+   * The current user.
+   *
+   * @var \Drupal\Core\Session\AccountProxyInterface
+   */
+  protected $currentUser;
+
+  /**
+   * The request stack.
+   *
+   * @var \Symfony\Component\HttpFoundation\RequestStack
+   */
+  protected $requestStack;
+
+  /**
+   * Constructs a PrivateMessageThreadMemberWidget object.
    *
    * @param string $plugin_id
    *   The plugin_id for the widget.
-   * @param mixed
+   * @param mixed $plugin_definition
    *   The plugin implementation definition.
    * @param \Drupal\Core\Field\FieldDefinitionInterface $field_definition
    *   The definition of the field to which the widget is associated.
@@ -45,13 +61,28 @@ class PrivateMessageThreadMemberWidget extends EntityReferenceAutocompleteWidget
    *   The widget settings.
    * @param array $third_party_settings
    *   Any third party settings.
-   * @param \Drupal\Core\Access\CsrfTokenGenerator $csrfToken
-   *   The CSRF token generator service
+   * @param \Drupal\Core\Access\CsrfTokenGenerator $csrfTokenGenerator
+   *   The CSRF token generator service.
+   * @param \Drupal\Core\Session\AccountProxyInterface $currentUser
+   *   The current user.
+   * @param \Symfony\Component\HttpFoundation\RequestStack $requestStack
+   *   The request stack.
    */
-  public function __construct($plugin_id, $plugin_definition, FieldDefinitionInterface $field_definition, array $settings, array $third_party_settings, CsrfTokenGenerator $csrfToken) {
+  public function __construct(
+    $plugin_id,
+    $plugin_definition,
+    FieldDefinitionInterface $field_definition,
+    array $settings,
+    array $third_party_settings,
+    CsrfTokenGenerator $csrfTokenGenerator,
+    AccountProxyInterface $currentUser,
+    RequestStack $requestStack
+  ) {
     parent::__construct($plugin_id, $plugin_definition, $field_definition, $settings, $third_party_settings);
 
-    $this->csrfToken = $csrfToken;
+    $this->csrfTokenGenerator = $csrfTokenGenerator;
+    $this->currentUser = $currentUser;
+    $this->requestStack = $requestStack;
   }
 
   /**
@@ -64,7 +95,9 @@ class PrivateMessageThreadMemberWidget extends EntityReferenceAutocompleteWidget
       $configuration['field_definition'],
       $configuration['settings'],
       $configuration['third_party_settings'],
-      $container->get('csrf_token')
+      $container->get('csrf_token'),
+      $container->get('current_user'),
+      $container->get('request_stack')
     );
   }
 
@@ -88,7 +121,7 @@ class PrivateMessageThreadMemberWidget extends EntityReferenceAutocompleteWidget
    * {@inheritdoc}
    *
    * The settings summary is returned empty, as the parent settings have no
-   * effect on this form
+   * effect on this form.
    */
   public function settingsSummary() {
     $summary = parent::settingsSummary();
@@ -125,8 +158,8 @@ class PrivateMessageThreadMemberWidget extends EntityReferenceAutocompleteWidget
   public function formElement(FieldItemListInterface $items, $delta, array $element, array &$form, FormStateInterface $form_state) {
     $element = parent::formElement($items, $delta, $element, $form, $form_state);
 
-    if (\Drupal::currentUser()->hasPermission('access user profiles')) {
-      $recipient_id = \Drupal::service('request_stack')->getCurrentRequest()->get('recipient');
+    if ($this->currentUser->hasPermission('access user profiles')) {
+      $recipient_id = $this->requestStack->getCurrentRequest()->get('recipient');
       if ($recipient_id) {
         $recipient = user_load($recipient_id);
         if ($recipient) {
@@ -143,7 +176,7 @@ class PrivateMessageThreadMemberWidget extends EntityReferenceAutocompleteWidget
 
     $element['#attached']['library'][] = 'private_message/members_widget';
     $url = Url::fromRoute('private_message.members_widget_callback');
-    $token = \Drupal::csrfToken()->get($url->getInternalPath());
+    $token = $this->csrfTokenGenerator->get($url->getInternalPath());
     $url->setOptions(['absolute' => TRUE, 'query' => ['token' => $token]]);
 
     $element['#attached']['drupalSettings']['privateMessageMembersWidget']['callbackPath'] = $url->toString();
@@ -152,7 +185,7 @@ class PrivateMessageThreadMemberWidget extends EntityReferenceAutocompleteWidget
     $element['#attached']['drupalSettings']['privateMessageMembersWidget']['maxMembers'] = $max_members;
 
     $validate_username_url = Url::fromRoute('private_message.ajax_callback', ['op' => 'validate_private_message_member_username']);
-    $validate_username_token = $this->csrfToken->get($validate_username_url->getInternalPath());
+    $validate_username_token = $this->csrfTokenGenerator->get($validate_username_url->getInternalPath());
     $validate_username_url->setOptions(['absolute' => TRUE, 'query' => ['token' => $validate_username_token]]);
     $element['#attached']['drupalSettings']['privateMessageMembersWidget']['validateUsernameUrl'] = $validate_username_url->toString();
 
@@ -160,9 +193,12 @@ class PrivateMessageThreadMemberWidget extends EntityReferenceAutocompleteWidget
   }
 
   /**
-   * Validate the form element to ensure that no more than the maximum number of allowed users
-   * has been entered. This is because the field itself is created as an unlimited cardinality field, but
-   * the widget allows for setting a maximum number of users
+   * Validates the form element for number of users.
+   *
+   * Validates the form element to ensure that no more than the maximum number
+   * of allowed users has been entered. This is because the field itself is
+   * created as an unlimited cardinality field, but the widget allows for
+   * setting a maximum number of users.
    */
   public static function validateFormElement(array $element, FormStateInterface $form_state) {
     $input_exists = FALSE;
@@ -170,8 +206,9 @@ class PrivateMessageThreadMemberWidget extends EntityReferenceAutocompleteWidget
     array_pop($parents);
     $value = NestedArray::getValue($form_state->getValues(), $parents, $input_exists);
     unset($value['add_more']);
-    if(count($value) > $element['#max_members']) {
+    if (count($value) > $element['#max_members']) {
       $form_state->setError($element, t('Private messages threads cannot have more than @count members', ['@count' => $element['#max_members']]));
     }
   }
+
 }

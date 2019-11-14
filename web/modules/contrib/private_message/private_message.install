@@ -1,11 +1,21 @@
 <?php
 
-function private_message_uninstall()
-{
-	\Drupal::configFactory()->getEditable('core.entity_view_display.user.user.private_message_author')->delete();
-	\Drupal::configFactory()->getEditable('core.entity_view_mode.user.private_message_author')->delete();
+/**
+ * @file
+ * Holds install and update hooks for the Private Messsage module.
+ */
+
+/**
+ * Implements hook_uninstall().
+ */
+function private_message_uninstall() {
+  \Drupal::configFactory()->getEditable('core.entity_view_display.user.user.private_message_author')->delete();
+  \Drupal::configFactory()->getEditable('core.entity_view_mode.user.private_message_author')->delete();
 }
 
+/**
+ * Implements hook_update_n().
+ */
 function private_message_update_8001() {
   $config_factory = \Drupal::configFactory();
 

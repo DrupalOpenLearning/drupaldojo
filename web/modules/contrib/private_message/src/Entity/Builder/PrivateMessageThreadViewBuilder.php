@@ -11,54 +11,70 @@ use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\Core\Theme\Registry;
 use Drupal\Core\Url;
-use Drupal\user\Entity\User;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
+/**
+ * Build handler for rpivate message threads.
+ */
 class PrivateMessageThreadViewBuilder extends EntityViewBuilder {
 
   /**
-   * The current user
+   * The current user.
    *
    * @var \Drupal\Core\Session\AccountProxyInterface
    */
   protected $currentUser;
 
   /**
-   * The configuration factory
+   * The configuration factory.
    *
    * @var \Drupal\Core\Config\Config
    */
   protected $config;
 
   /**
-   * The class resolver service
+   * The class resolver service.
    *
    * @var \Drupal\Core\DependencyInjection\ClassResolverInterface
    */
   protected $classResolver;
 
   /**
-   * The module handler service
+   * The module handler service.
    *
    * @var \Drupal\Core\Extension\ModuleHandlerInterface
    */
   protected $moduleHandler;
 
   /**
-   * The form builder service
+   * The form builder service.
    *
    * @var \Drupal\Core\Form\FormBuilderInterface
    */
   protected $formBuilder;
 
   /**
-   * {@inheritdoc}
+   * Constructs a PrivateMessageThreadViewBuilder object.
    *
+   * @param \Drupal\Core\Entity\EntityTypeInterface $entityType
+   *   The entity type.
+   * @param \Drupal\Core\Entity\EntityManagerInterface $entityManager
+   *   The entity manager service.
+   * @param \Drupal\Core\Language\LanguageManagerInterface $languageManager
+   *   The language manager service.
+   * @param \Drupal\Core\Theme\Registry $themeRegistry
+   *   The theme register.
    * @param \Drupal\Core\Session\AccountProxyInterface $currentUser
-   *   The current user
+   *   The current user.
    */
-  public function __construct(EntityTypeInterface $entity_type, EntityManagerInterface $entity_manager, LanguageManagerInterface $language_manager, Registry $theme_registry, AccountProxyInterface $currentUser) {
-    parent::__construct($entity_type, $entity_manager, $language_manager, $theme_registry);
+  public function __construct(
+    EntityTypeInterface $entityType,
+    EntityManagerInterface $entityManager,
+    LanguageManagerInterface $languageManager,
+    Registry $themeRegistry,
+    AccountProxyInterface $currentUser
+  ) {
+    parent::__construct($entityType, $entityManager, $languageManager, $themeRegistry);
 
     $this->currentUser = $currentUser;
   }
@@ -66,11 +82,11 @@ class PrivateMessageThreadViewBuilder extends EntityViewBuilder {
   /**
    * {@inheritdoc}
    */
-  public static function createInstance(ContainerInterface $container, EntityTypeInterface $entity_type) {
+  public static function createInstance(ContainerInterface $container, EntityTypeInterface $entityType) {
     return new static(
-      $entity_type, 
-      $container->get('entity.manager'), 
-      $container->get('language_manager'), 
+      $entityType,
+      $container->get('entity.manager'),
+      $container->get('language_manager'),
       $container->get('theme.registry'),
       $container->get('current_user')
     );
@@ -87,7 +103,15 @@ class PrivateMessageThreadViewBuilder extends EntityViewBuilder {
 
     $last_access_time = $entity->getLastAccessTimestamp($this->currentUser);
     $newest_message_timestamp = $entity->getNewestMessageCreationTimestamp();
-    if ($last_access_time < $newest_message_timestamp) {
+    $messages = $entity->getMessages();
+
+    foreach ($messages as $message) {
+      if ($message->getCreatedTime() == $newest_message_timestamp) {
+        break;
+      }
+    }
+
+    if ($last_access_time <= $newest_message_timestamp && $message->getOwnerId() != $this->currentUser->id()) {
       $classes[] = 'unread-thread';
     }
 
@@ -102,7 +126,7 @@ class PrivateMessageThreadViewBuilder extends EntityViewBuilder {
       ];
     }
 
-    if($view_mode == 'full') {
+    if ($view_mode == 'full') {
       $tags[] = 'private_message_thread:' . $entity->id() . ':view:uid:' . $this->currentUser->id();
       $tags[] = 'private_message_inbox_block:uid:' . $this->currentUser->id();
       $tags[] = 'private_message_notification_block:uid:' . $this->currentUser->id();
@@ -121,4 +145,5 @@ class PrivateMessageThreadViewBuilder extends EntityViewBuilder {
 
     return $build;
   }
+
 }

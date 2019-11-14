@@ -4,9 +4,11 @@ namespace Drupal\private_message\Entity\Access;
 
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Entity\EntityAccessControlHandler;
-use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Session\AccountInterface;
 
+/**
+ * Access control handler for private message thread last access time entities.
+ */
 class PrivateMessageThreadAccessAccessControlHandler extends EntityAccessControlHandler {
 
   /**
@@ -18,4 +20,5 @@ class PrivateMessageThreadAccessAccessControlHandler extends EntityAccessControl
   protected function checkCreateAccess(AccountInterface $account, array $context, $entity_bundle = NULL) {
     return AccessResult::allowedIfHasPermission($account, 'use private messaging system');
   }
+
 }

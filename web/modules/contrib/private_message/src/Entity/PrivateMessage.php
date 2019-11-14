@@ -6,36 +6,36 @@ use Drupal\Core\Entity\ContentEntityBase;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
-use Drupal\Core\Field\FieldStorageDefinitionInterface;
-use Drupal\field\Entity\FieldStorageConfig;
 use Drupal\user\UserInterface;
 
- /**
-  * @ContentEntityType(
-  *   id = "private_message",
-  *   label = @Translation("Private Message"),
-  *   handlers = {
-  *     "view_builder" = "Drupal\private_message\Entity\Builder\PrivateMessageViewBuilder",
-  *     "views_data" = "Drupal\views\EntityViewsData",
-  *     "form" = {
-  *       "add" = "Drupal\private_message\Form\PrivateMessageForm",
-  *     },
-  *     "access" = "Drupal\private_message\Entity\Access\PrivateMessageAccessControlHandler",
-  *   },
-  *   base_table = "private_messages",
-  *   admin_permission = "administer private messages",
-  *   fieldable = TRUE,
-  *   entity_keys = {
-  *     "id" = "id",
-  *     "uuid" = "uuid"
-  *   },
-  *   links = {
-  *     "canonical" = "/private_message/{private_message}",
-  *     "delete-form" = "/private_message/{private_message}/delete",
-  *   },
-  *   field_ui_base_route = "private_message.private_message_settings",
-  * )
-  */
+/**
+ * Thee Private Message entity definition.
+ *
+ * @ContentEntityType(
+ *   id = "private_message",
+ *   label = @Translation("Private Message"),
+ *   handlers = {
+ *     "view_builder" = "Drupal\private_message\Entity\Builder\PrivateMessageViewBuilder",
+ *     "views_data" = "Drupal\views\EntityViewsData",
+ *     "form" = {
+ *       "add" = "Drupal\private_message\Form\PrivateMessageForm",
+ *     },
+ *     "access" = "Drupal\private_message\Entity\Access\PrivateMessageAccessControlHandler",
+ *   },
+ *   base_table = "private_messages",
+ *   admin_permission = "administer private messages",
+ *   fieldable = TRUE,
+ *   entity_keys = {
+ *     "id" = "id",
+ *     "uuid" = "uuid"
+ *   },
+ *   links = {
+ *     "canonical" = "/private_message/{private_message}",
+ *     "delete-form" = "/private_message/{private_message}/delete",
+ *   },
+ *   field_ui_base_route = "private_message.private_message_settings",
+ * )
+ */
 class PrivateMessage extends ContentEntityBase implements PrivateMessageInterface {
 
   /**
@@ -100,15 +100,15 @@ class PrivateMessage extends ContentEntityBase implements PrivateMessageInterfac
    */
   public static function baseFieldDefinitions(EntityTypeInterface $entity_type) {
     $fields = parent::baseFieldDefinitions($entity_type);
-    $fields['id']->setLabel(t('Custom private message ID'))
+    $fields['id']->setLabel(t('Private message ID'))
       ->setDescription(t('The private message ID.'));
 
     $fields['uuid']->setDescription(t('The custom private message UUID.'));
 
     // Owner of the private message.
-    // Entity reference field, holds the reference to the user object.
-    // The view shows the user name field of the user.
-    // No form field is provided, as the user will always be the current user
+    // Entity reference field, holds the reference to the user object. The view
+    // shows the user name field of the user. No form field is provided, as the
+    // user will always be the current user.
     $fields['owner'] = BaseFieldDefinition::create('entity_reference')
       ->setLabel(t('From'))
       ->setDescription(t('The author of the private message'))
@@ -131,15 +131,15 @@ class PrivateMessage extends ContentEntityBase implements PrivateMessageInterfac
         'type' => 'text_textarea',
         'label' => 'hidden',
         'settings' => [
-	      'placeholder' => 'Message',
-	    ],
+          'placeholder' => 'Message',
+        ],
       ])
       ->setDisplayOptions('view', [
         'label' => 'hidden',
         'type' => 'text_textfield',
         'settings' => [
-	      'trim_length' => '200',
-	    ],
+          'trim_length' => '200',
+        ],
         'weight' => 0,
       ])
       ->setDisplayConfigurable('form', TRUE)
@@ -156,4 +156,5 @@ class PrivateMessage extends ContentEntityBase implements PrivateMessageInterfac
 
     return $fields;
   }
+
 }

@@ -33,7 +33,7 @@ class Permissions extends PrerenderList {
   protected $moduleHandler;
 
   /**
-   * Constructs a Drupal\Component\Plugin\PluginBase object.
+   * Constructs a \Drupal\user\Plugin\views\field\Permissions object.
    *
    * @param array $configuration
    *   A configuration array containing information about the plugin instance.
@@ -81,7 +81,11 @@ class Permissions extends PrerenderList {
 
     $rids = [];
     foreach ($values as $result) {
-      $user_rids = $this->getEntity($result)->getRoles();
+      $user = $this->getEntity($result);
+      if (!$user) {
+        continue;
+      }
+      $user_rids = $user->getRoles();
       $uid = $this->getValue($result);
 
       foreach ($user_rids as $rid) {

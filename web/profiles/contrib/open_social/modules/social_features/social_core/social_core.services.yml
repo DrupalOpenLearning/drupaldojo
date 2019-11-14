@@ -1,5 +1,0 @@
-services:
-  social_core.route_subscriber:
-    class: \Drupal\social_core\Routing\RouteSubscriber
-    tags:
-      - { name: event_subscriber }

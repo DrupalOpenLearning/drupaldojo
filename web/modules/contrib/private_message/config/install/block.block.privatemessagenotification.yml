@@ -14,5 +14,5 @@ settings:
   label: 'Private Message Notification'
   provider: private_message
   label_display: '0'
-  ajax_refresh_rate: '15'
+  ajax_refresh_rate: 15
 visibility: {  }

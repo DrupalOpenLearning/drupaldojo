@@ -1,5 +1,10 @@
+/**
+ * @file
+ * Adds JavaScript functionality to priveate message threads.
+ */
+
 /*global jQuery, Drupal, drupalSettings, window*/
-/*jslint white:true, multivar, this, browser:true*/
+/*jslint white:true, this, browser:true*/
 
 Drupal.PrivateMessages = {};
 
@@ -17,12 +22,12 @@ Drupal.PrivateMessages = {};
       progress: false
     });
 
-    // Trigger any any ajax commands in the response
+    // Trigger any any ajax commands in the response.
     ajaxObject.success(data, "success");
   }
 
   function showDimmer(callback) {
-    if(!dimmer) {
+    if (!dimmer) {
       dimmer = $("<div/>", {id:"private-message-thread-dimmer"}).appendTo(threadWrapper);
     }
 
@@ -30,14 +35,14 @@ Drupal.PrivateMessages = {};
   }
 
   function hideDimmer() {
-    if(dimmer) {
+    if (dimmer) {
       dimmer.fadeOut(500);
     }
   }
 
-  var loadPreviousListenerHandler = function(e) {
+  var loadPreviousListenerHandler = function (e) {
     e.preventDefault();
- 
+
     if (!loadingPrev) {
       loadingPrev = true;
 
@@ -45,7 +50,7 @@ Drupal.PrivateMessages = {};
 
       threadId = threadWrapper.children(".private-message-thread:first").attr("data-thread-id");
 
-      container.find(".private-message").each(function() {
+      container.find(".private-message").each(function () {
         if (!oldestId || Number($(this).attr("data-message-id")) < oldestId) {
           oldestId = Number($(this).attr("data-message-id"));
         }
@@ -54,7 +59,7 @@ Drupal.PrivateMessages = {};
       $.ajax({
         url:drupalSettings.privateMessageThread.previousMessageCheckUrl,
         data: {threadid:threadId, messageid:oldestId},
-        success:function(data) {
+        success:function (data) {
           loadingPrev = false;
           triggerCommands(data);
         }
@@ -63,7 +68,7 @@ Drupal.PrivateMessages = {};
   };
 
   function loadPreviousListener(context) {
-    $(context).find("#load-previous-messages").once("load-previous-private-messages-listener").each(function() {
+    $(context).find("#load-previous-messages").once("load-previous-private-messages-listener").each(function () {
       $(this).click(loadPreviousListenerHandler);
     });
   }
@@ -106,31 +111,33 @@ Drupal.PrivateMessages = {};
 
       threadId = threadWrapper.children(".private-message-thread:first").attr("data-thread-id");
 
-      container.find(".private-message").each(function() {
+      container.find(".private-message").each(function () {
         if (Number($(this).attr("data-message-id")) > newestId) {
           newestId = Number($(this).attr("data-message-id"));
         }
       });
 
-      $.ajax({
-        url:drupalSettings.privateMessageThread.newMessageCheckUrl,
-        data: {threadid:threadId, messageid:newestId},
-        success:function(data) {
-          triggerCommands(data);
+      if (refreshRate) {
+        $.ajax({
+          url:drupalSettings.privateMessageThread.newMessageCheckUrl,
+          data: {threadid:threadId, messageid:newestId},
+          success:function (data) {
+            triggerCommands(data);
 
-          loadingNew = false;
+            loadingNew = false;
 
-          // Check for new messages again
-          timeout = window.setTimeout(getNewMessages, refreshRate);
-        }
-      });
+             // Check for new messages again.
+            timeout = window.setTimeout(getNewMessages, refreshRate);
+          }
+        });
+      }
     }
   }
 
   function insertThread(thread) {
     var newThread, originalThread;
 
-    newThread = $("<div/>").html(thread).children("#private-message-page:first").children(".private-message-thread:first");
+    newThread = $("<div/>").html(thread).find(".private-message-thread:first");
     originalThread = threadWrapper.children(".private-message-thread:first");
     Drupal.detachBehaviors(threadWrapper[0]);
     newThread.insertAfter(originalThread);
@@ -142,7 +149,7 @@ Drupal.PrivateMessages = {};
   }
 
   function loadThread(threadId, pushHistory) {
-    if(!loadingThread && threadId !== currentThreadId) {
+    if (!loadingThread && threadId !== currentThreadId) {
       loadingThread = true;
 
       window.clearTimeout(timeout);
@@ -152,17 +159,17 @@ Drupal.PrivateMessages = {};
       $.ajax({
         url:drupalSettings.privateMessageThread.loadThreadUrl,
         data:{id:threadId},
-        success:function(data) {
+        success:function (data) {
           triggerCommands(data);
 
-          if(Drupal.PrivateMessages.setActiveThread) {
+          if (Drupal.PrivateMessages.setActiveThread) {
             Drupal.PrivateMessages.setActiveThread(threadId);
           }
 
           loadingThread = false;
 
           timeout = window.setTimeout(getNewMessages, refreshRate);
-        } 
+        }
       });
 
       if (pushHistory) {
@@ -177,9 +184,9 @@ Drupal.PrivateMessages = {};
     if (!initialized) {
       initialized = true;
 
-      threadWrapper = $("#private-message-page");
+      threadWrapper = $(".private-message-thread").parent();
       refreshRate = drupalSettings.privateMessageThread.refreshRate;
-      container = threadWrapper.find(".private-message-thread-messages:first .field__items:first");
+      container = threadWrapper.find(".private-message-thread-messages:first .private-message-wrapper:first").parent();
 
       loadPreviousButton = $("<div/>", {id:"load-previous-messages-button-wrapper"}).append($("<a/>", {href:"#", id:"load-previous-messages"}).text(Drupal.t("Load Previous")));
 
@@ -192,23 +199,25 @@ Drupal.PrivateMessages = {};
 
       originalThreadId = threadWrapper.children(".private-message-thread:first").attr("data-thread-id");
 
-      timeout = window.setTimeout(getNewMessages, refreshRate);
+      if (refreshRate) {
+        timeout = window.setTimeout(getNewMessages, refreshRate);
+      }
 
-      if(Drupal.PrivateMessages.setActiveThread) {
+      if (Drupal.PrivateMessages.setActiveThread) {
         Drupal.PrivateMessages.setActiveThread(originalThreadId);
       }
     }
   }
 
   Drupal.behaviors.privateMessageThread = {
-    attach:function(context) {
+    attach:function (context) {
       init();
       loadPreviousListener(context);
       currentThreadId = threadWrapper.children(".private-message-thread:first").attr("data-thread-id");
-      container = threadWrapper.find(".private-message-thread-messages:first .field__items:first");
+      container = threadWrapper.find(".private-message-thread-messages:first .private-message-wrapper:first").parent();
 
-      Drupal.AjaxCommands.prototype.insertPrivateMessages = function(ajax, response) {
-        // stifles jSlint warning.
+      Drupal.AjaxCommands.prototype.insertPrivateMessages = function (ajax, response) {
+        // Stifles jSlint warning.
         ajax = ajax;
 
         if (response.insertType === "new") {
@@ -219,40 +228,40 @@ Drupal.PrivateMessages = {};
             insertPreviousMessages(response.messages);
           }
           else {
-            $("#load-previous-messages").parent().slideUp(300, function() {
+            $("#load-previous-messages").parent().slideUp(300, function () {
               $(this).remove();
             });
           }
         }
       };
 
-      Drupal.AjaxCommands.prototype.loadNewPrivateMessages = function() {
+      Drupal.AjaxCommands.prototype.loadNewPrivateMessages = function () {
 
         window.clearTimeout(timeout);
 
         getNewMessages();
       };
 
-      Drupal.AjaxCommands.prototype.privateMessageInsertThread = function(ajax, response) {
-        // stifle jslint warning
+      Drupal.AjaxCommands.prototype.privateMessageInsertThread = function (ajax, response) {
+        // Stifle jslint warning.
         ajax = ajax;
 
-        if(response.thread && response.thread.length) {
+        if (response.thread && response.thread.length) {
           insertThread(response.thread);
         }
       };
 
-      Drupal.PrivateMessages.loadThread = function(threadId) {
+      Drupal.PrivateMessages.loadThread = function (threadId) {
         loadThread(threadId, true);
       };
     },
-    detach:function(context) {
+    detach:function (context) {
       $(context).find("#load-previous-messages").unbind("click", loadPreviousListenerHandler);
     }
   };
 
-  window.onpopstate = function(e) {
-    if(e.state&& e.state.threadId) {
+  window.onpopstate = function (e) {
+    if (e.state&& e.state.threadId) {
       loadThread(e.state.threadId);
     }
     else {

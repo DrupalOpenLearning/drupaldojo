@@ -4,12 +4,12 @@ description: A private message system for users to send messages to each other
 type: module
 
 dependencies:
-  - text
+  - drupal:text
 
 configure: private_message.admin_config.config
 
-# Information added by Drupal.org packaging script on 2017-05-23
-version: '8.x-1.0-beta18'
+# Information added by Drupal.org packaging script on 2018-05-31
+version: '8.x-1.2'
 core: '8.x'
 project: 'private_message'
-datestamp: 1495504087
+datestamp: 1527808685

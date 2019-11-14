@@ -1,5 +1,0 @@
-services:
-  social_event_type.override:
-    class: \Drupal\social_event_type\SocialEventTypeConfigOverride
-    tags:
-      - {name: config.factory.override, priority: 5}

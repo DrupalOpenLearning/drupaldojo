@@ -2,7 +2,6 @@
 
 namespace Drupal\private_message\Plugin\Field\FieldFormatter;
 
-use Drupal\Component\Render\FormattableMarkup;
 use Drupal\Core\Access\CsrfTokenGenerator;
 use Drupal\Core\Entity\EntityManagerInterface;
 use Drupal\Core\Field\FieldDefinitionInterface;
@@ -12,10 +11,11 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\Core\Url;
-use Drupal\user\Entity\User;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
+ * Defines the private message thread message field formatter.
+ *
  * @FieldFormatter(
  *   id = "private_message_thread_message_formatter",
  *   label = @Translation("Private Message Messages"),
@@ -27,42 +27,75 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class PrivateMessageThreadMessageFormatter extends FormatterBase implements ContainerFactoryPluginInterface {
 
   /**
-   * The entity manager service
+   * The entity manager service.
    *
    * @var \Drupal\Core\Entity\EntityManagerInterface
    */
   protected $entityManager;
 
-   /**
-    * The current user
-    *
-    * @var \Drupal\Core\Session\AccountProxyInterface
-    */
-   protected $currentUser;
+  /**
+   * The current user.
+   *
+   * @var \Drupal\Core\Session\AccountProxyInterface
+   */
+  protected $currentUser;
 
   /**
-   * The CSRF token generator
+   * The CSRF token generator.
    *
    * @var \Drupal\Core\Access\CsrfTokenGenerator
    */
   protected $csrfTokenGenerator;
 
   /**
-   * Construct a PrivateMessageThreadFormatter object
+   * The user manager service.
    *
-   * @param \Drupal\Core\Entity\EntityManagerInterface $entityManager
-   *   The entity manager service
-   * @param |Drupal\Core\Session\AccountProxyInterface $currentUser
-   *   The current user
-   * @param \Drupal\Core\Access\CsrfTokenGenerator $csrfTokenGenerator
-   *   The CSRF token generator
+   * @var \Drupal\user\UserStorageInterface
    */
-  public function __construct($plugin_id, $plugin_definition, FieldDefinitionInterface $field_definition, array $settings, $label, $view_mode, array $third_party_settings, EntityManagerInterface $entityManager, AccountProxyInterface $currentUser, CsrfTokenGenerator $csrfTokenGenerator) {
+  protected $userManager;
+
+  /**
+   * Construct a PrivateMessageThreadFormatter object.
+   *
+   * @param string $plugin_id
+   *   The ID of the plugin.
+   * @param mixed $plugin_definition
+   *   The plugin definition.
+   * @param \Drupal\Core\Field\FieldDefinitionInterface $field_definition
+   *   The field definition.
+   * @param array $settings
+   *   The field settings.
+   * @param mixed $label
+   *   The label of the field.
+   * @param string $view_mode
+   *   The current view mode.
+   * @param array $third_party_settings
+   *   The third party settings.
+   * @param \Drupal\Core\Entity\EntityManagerInterface $entityManager
+   *   The entity manager service.
+   * @param |Drupal\Core\Session\AccountProxyInterface $currentUser
+   *   The current user.
+   * @param \Drupal\Core\Access\CsrfTokenGenerator $csrfTokenGenerator
+   *   The CSRF token generator.
+   */
+  public function __construct(
+    $plugin_id,
+    $plugin_definition,
+    FieldDefinitionInterface $field_definition,
+    array $settings,
+    $label,
+    $view_mode,
+    array $third_party_settings,
+    EntityManagerInterface $entityManager,
+    AccountProxyInterface $currentUser,
+    CsrfTokenGenerator $csrfTokenGenerator
+  ) {
     parent::__construct($plugin_id, $plugin_definition, $field_definition, $settings, $label, $view_mode, $third_party_settings);
 
     $this->entityManager = $entityManager;
     $this->currentUser = $currentUser;
     $this->csrfTokenGenerator = $csrfTokenGenerator;
+    $this->userManager = $entityManager->getStorage('user');
   }
 
   /**
@@ -112,7 +145,12 @@ class PrivateMessageThreadMessageFormatter extends FormatterBase implements Cont
     $summary[] = $this->t('Number of threads to show on load: @count', ['@count' => $settings['message_count']]);
     $summary[] = $this->t('Number of threads to show when clicking load previous: @count', ['@count' => $settings['ajax_previous_load_count']]);
     $summary[] = $this->t('Order of messages: @order', ['@order' => $this->translateKey('order', $settings['message_order'])]);
-    $summary[] = $this->t('Ajax refresh rate: @count seconds', ['@count' => $settings['ajax_refresh_rate']]);
+    if ($settings['ajax_refresh_rate']) {
+      $summary[] = $this->t('Ajax refresh rate: @count seconds', ['@count' => $settings['ajax_refresh_rate']]);
+    }
+    else {
+      $summary[] = $this->t('Ajax refresh rate: Ajax refresh disabled');
+    }
 
     return $summary;
   }
@@ -138,9 +176,8 @@ class PrivateMessageThreadMessageFormatter extends FormatterBase implements Cont
     $element['ajax_refresh_rate'] = [
       '#title' => $this->t('Ajax refresh rate'),
       '#type' => 'number',
-      '#min' => 5,
       '#default_value' => $this->getSetting('ajax_refresh_rate'),
-      '#description' => $this->t('The number of seconds between checks for new messages. Note that a lower number will cause more requests, use more bandwidth, and cause more strain on the server.'),
+      '#description' => $this->t('The number of seconds between checks for new messages. Set to zero to disable. Note that a lower number will cause more requests, use more bandwidth, and cause more strain on the server. As such, it is not recommended to set a value lower than five (5) seconds.'),
     ];
 
     $element['message_order'] = [
@@ -172,11 +209,11 @@ class PrivateMessageThreadMessageFormatter extends FormatterBase implements Cont
 
     $view_builder = $this->entityManager->getViewBuilder('private_message');
 
-    $user = User::load($this->currentUser->id());
+    $user = $this->userManager->load($this->currentUser->id());
     $messages = $private_message_thread->filterUserDeletedMessages($user);
     $messages = array_slice($messages, -1 * $this->getSetting('message_count'));
 
-    foreach ($messages as $index => $message) {
+    foreach ($messages as $message) {
       $element[$message->id()] = $view_builder->view($message, 'full');
     }
 
@@ -209,6 +246,22 @@ class PrivateMessageThreadMessageFormatter extends FormatterBase implements Cont
     return $element;
   }
 
+  /**
+   * Translates a given key.
+   *
+   * @param string $type
+   *   The type of string being translated.
+   * @param string $value
+   *   The value to be translated.
+   *
+   * @return mixed
+   *   - If a translated value exists for the given type/value combination, a
+   *     \Drupal\Core\StringTranslation\TranslatableMarkup object containing the
+   *     translated value is returned.
+   *   - If only the type exists, but not the value, the untranslated value as
+   *     a string is returned.
+   *   - If the type does not exist, the untranslated value is returned.
+   */
   private function translateKey($type, $value) {
     if ($type == 'order') {
       $keys = [
@@ -221,4 +274,5 @@ class PrivateMessageThreadMessageFormatter extends FormatterBase implements Cont
 
     return $value;
   }
+
 }

@@ -1,5 +1,0 @@
-services:
-  social_landing_page.overrider:
-    class: \Drupal\social_landing_page\SocialLandingPageConfigOverride
-    tags:
-      - {name: config.factory.override, priority: 5}

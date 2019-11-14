@@ -3,28 +3,28 @@
 namespace Drupal\private_message\Entity;
 
 use Drupal\Core\Entity\ContentEntityBase;
-use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
-use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Drupal\user\UserInterface;
 
- /**
-  * @ContentEntityType(
-  *   id = "pm_thread_access_time",
-  *   label = @Translation("Private Message Thread Access Time"),
-  *   handlers = {
-  *     "views_data" = "Drupal\views\EntityViewsData",
-  *     "access" = "Drupal\private_message\Entity\Access\PrivateMessageThreadAccessTimeAccessControlHandler",
-  *   },
-  *   base_table = "pm_thread_access_time",
-  *   fieldable = FALSE,
-  *   entity_keys = {
-  *     "id" = "id",
-  *     "uuid" = "uuid"
-  *   },
-  * )
-  */
+/**
+ * The Private Message Thread Access Time entity type definition.
+ *
+ * @ContentEntityType(
+ *   id = "pm_thread_access_time",
+ *   label = @Translation("Private Message Thread Access Time"),
+ *   handlers = {
+ *     "views_data" = "Drupal\views\EntityViewsData",
+ *     "access" = "Drupal\private_message\Entity\Access\PrivateMessageThreadAccessTimeAccessControlHandler",
+ *   },
+ *   base_table = "pm_thread_access_time",
+ *   fieldable = FALSE,
+ *   entity_keys = {
+ *     "id" = "id",
+ *     "uuid" = "uuid"
+ *   },
+ * )
+ */
 class PrivateMessageThreadAccessTime extends ContentEntityBase implements PrivateMessageThreadAccessTimeInterface {
 
   /**
@@ -84,9 +84,9 @@ class PrivateMessageThreadAccessTime extends ContentEntityBase implements Privat
     $fields['uuid']->setDescription(t('The custom private message UUID.'));
 
     // Owner of the private message.
-    // Entity reference field, holds the reference to the user object.
-    // The view shows the user name field of the user.
-    // No form field is provided, as the user will always be the current user
+    // Entity reference field, holds the reference to the user object. The view
+    // shows the user name field of the user. No form field is provided, as the
+    // user will always be the current user.
     $fields['owner'] = BaseFieldDefinition::create('entity_reference')
       ->setLabel(t('User Name'))
       ->setDescription(t('The Name of the associated user.'))
@@ -99,4 +99,5 @@ class PrivateMessageThreadAccessTime extends ContentEntityBase implements Privat
 
     return $fields;
   }
+
 }

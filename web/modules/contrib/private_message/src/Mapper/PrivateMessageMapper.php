@@ -7,29 +7,32 @@ use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\private_message\Entity\PrivateMessageInterface;
 use Drupal\user\UserInterface;
 
+/**
+ * Interface for the Private Message Mapper class.
+ */
 class PrivateMessageMapper implements PrivateMessageMapperInterface {
 
   /**
-   * The database connection
+   * The database connection.
    *
    * @var \Drupal\Core\Database\Connection
    */
   protected $database;
 
   /**
-   * The current user
+   * The current user.
    *
    * @var \Drupal\Session\AccountProxyInterface
    */
   protected $currentUser;
 
   /**
-   * Construct a PrivateMessageMapper object
+   * Constructs a PrivateMessageMapper object.
    *
    * @param \Drupal\Core\Database\Connection $database
-   *   The database connection
+   *   The database connection.
    * @param \Drupal\Session\AccountProxyInterface $currentUser
-   *   The current user
+   *   The current user.
    */
   public function __construct(Connection $database, AccountProxyInterface $currentUser) {
     $this->database = $database;
@@ -46,11 +49,11 @@ class PrivateMessageMapper implements PrivateMessageMapperInterface {
     }
 
     $query = $this->database->select('private_message_threads', 'pm')
-    	->fields('pm', ['id'])
-    	->range(0, 1);
+      ->fields('pm', ['id'])
+      ->range(0, 1);
 
-    // First do an inner join for each user, to ensure that the user
-    // exists in the theread
+    // First do an inner join for each user, to ensure that the user exists in
+    // the theread.
     $i = 0;
     foreach ($uids as $uid) {
       $tmp_alias = 'member_' . $i;
@@ -58,8 +61,8 @@ class PrivateMessageMapper implements PrivateMessageMapperInterface {
       $i++;
     }
 
-    // Next, do a left join for all rows that don't contain the users, and ensure that there
-    // aren't any additional users in selected threads
+    // Next, do a left join for all rows that don't contain the users, and
+    // ensure that there aren't any additional users in selected threads.
     $alias = $query->leftJoin('private_message_thread__members', 'member', 'member.entity_id = pm.id AND member.members_target_id NOT IN (:uids[])', [':uids[]' => $uids]);
     $query->isNull($alias . '.members_target_id');
 
@@ -84,7 +87,8 @@ class PrivateMessageMapper implements PrivateMessageMapperInterface {
       'ON owner_delete_time.id = thread_delete_time.last_delete_time_target_id AND owner_delete_time.owner = :uid ' .
       'WHERE owner_delete_time.delete_time <= messages.created ' .
       'ORDER BY thread.updated DESC',
-      0,1,
+      0,
+      1,
       [':uid' => $user->id()]
     )->fetchField();
   }
@@ -113,7 +117,7 @@ class PrivateMessageMapper implements PrivateMessageMapperInterface {
       $vars[':timestamp'] = $timestamp;
     }
 
-    $query .= 'GROUP BY thread.id ORDER BY MAX(thread.updated) ASC, thread.id';
+    $query .= 'GROUP BY thread.id ORDER BY MAX(thread.updated) DESC, thread.id';
 
     $thread_ids = $this->database->queryRange(
       $query,
@@ -159,20 +163,19 @@ class PrivateMessageMapper implements PrivateMessageMapperInterface {
    */
   public function getUserIdsFromString($string, $count) {
     if ($this->currentUser->hasPermission('access user profiles') && $this->currentUser->hasPermission('use private messaging system')) {
-      return $this->database->queryRange(
-        'SELECT user_data.uid ' .
-        'FROM {users_field_data} AS user_data ' .
-        'LEFT JOIN {user__roles} AS user_roles ' .
+      $query = 'SELECT user_data.uid FROM {users_field_data} AS user_data LEFT ' .
+        'JOIN {user__roles} AS user_roles ' .
         'ON user_roles.entity_id = user_data.uid ' .
         'LEFT JOIN {config} AS role_config ' .
         "ON role_config.name = CONCAT('user.role.', user_roles.roles_target_id) " .
-        'JOIN {config} AS config ' .
-        'ON config.name = :authenticated_config ' .
-        'WHERE user_data.name LIKE :string ' .
-        'AND user_data.name != :current_user ' .
-        'AND (config.data LIKE :use_pm_permission ' .
+        'JOIN {config} AS config ON config.name = :authenticated_config WHERE ' .
+        'user_data.name LIKE :string AND user_data.name != :current_user AND ' .
+        '(config.data LIKE :use_pm_permission ' .
         'OR role_config.data LIKE :use_pm_permission) ' .
-        'ORDER BY user_data.name ASC',
+        'ORDER BY user_data.name ASC';
+
+      return $this->database->queryRange(
+        $query,
         0,
         $count,
         [
@@ -224,11 +227,9 @@ class PrivateMessageMapper implements PrivateMessageMapperInterface {
    */
   public function checkPrivateMessageMemberExists($username) {
     return $this->database->queryRange(
-      'SELECT 1 ' .
-      'FROM {users_field_data} AS user_data ' .
-      'LEFT JOIN {user__roles} AS user_roles ' .
-      'ON user_roles.entity_id = user_data.uid  ' .
-      'LEFT JOIN {config} AS role_config ' .
+      'SELECT 1 FROM {users_field_data} AS user_data LEFT JOIN {user__roles} AS ' .
+      'user_roles ON user_roles.entity_id = user_data.uid  LEFT JOIN {config} ' .
+      'AS role_config ' .
       "ON role_config.name = CONCAT('user.role.', user_roles.roles_target_id) " .
       'LEFT JOIN {config} AS authenticated_config ' .
       'ON authenticated_config.name = :authenticated_user_role ' .
@@ -237,9 +238,9 @@ class PrivateMessageMapper implements PrivateMessageMapperInterface {
       0,
       1,
       [
-	      ':username' => $username,
-	      ':authenticated_user_role' => 'user.role.authenticated',
-	      ':permission' => '%use private messaging system%',
+        ':username' => $username,
+        ':authenticated_user_role' => 'user.role.authenticated',
+        ':permission' => '%use private messaging system%',
       ]
     )->fetchField();
   }
@@ -249,14 +250,21 @@ class PrivateMessageMapper implements PrivateMessageMapperInterface {
    */
   public function getUnreadThreadCount($uid, $lastCheckTimestamp) {
     return $this->database->query(
-      'SELECT COUNT(thread.id) ' .
-      'FROM {private_message_threads} AS thread ' .
+      'SELECT COUNT(DISTINCT thread.id) FROM {private_messages} AS message ' .
+      'JOIN {private_message_thread__private_messages} AS thread_message ' .
+      'ON message.id = thread_message.private_messages_target_id ' .
+      'JOIN {private_message_threads} AS thread ' .
+      'ON thread_message.entity_id = thread.id ' .
       'JOIN {private_message_thread__members} AS member ' .
       'ON member.entity_id = thread.id AND member.members_target_id = :uid ' .
-      'WHERE thread.updated > :timestamp',
+      'JOIN {private_message_thread__last_access_time} AS last_access ' .
+      'ON last_access.entity_id = thread.id ' .
+      'JOIN {pm_thread_access_time} as access_time ' .
+      'ON access_time.id = last_access.last_access_time_target_id AND access_time.owner = :uid AND access_time.access_time < thread.updated ' .	  
+      'WHERE thread.updated > :timestamp AND message.created > :timestamp AND message.owner <> :uid',
       [
-	      ':uid' => $uid,
-	      ':timestamp' => $lastCheckTimestamp,
+        ':uid' => $uid,
+        ':timestamp' => $lastCheckTimestamp,
       ]
     )->fetchField();
   }
@@ -266,15 +274,15 @@ class PrivateMessageMapper implements PrivateMessageMapperInterface {
    */
   public function getThreadIdFromMessage(PrivateMessageInterface $privateMessage) {
     return $this->database->queryRange(
-      'SELECT thread.id ' .
-      'FROM {private_message_threads} AS thread ' .
-      'JOIN {private_message_thread__private_messages} AS messages ' .
+      'SELECT thread.id FROM {private_message_threads} AS thread JOIN ' .
+      '{private_message_thread__private_messages} AS messages ' .
       'ON messages.entity_id = thread.id AND messages.private_messages_target_id = :message_id',
       0,
       1,
       [
-	      ':message_id' => $privateMessage->id(),
+        ':message_id' => $privateMessage->id(),
       ]
     )->fetchField();
   }
+
 }

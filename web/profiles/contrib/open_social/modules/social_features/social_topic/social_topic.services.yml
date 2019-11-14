@@ -1,5 +1,0 @@
-services:
-  social_topic.route_subscriber:
-    class: Drupal\social_topic\Routing\RouteSubscriber
-    tags:
-      - { name: event_subscriber }

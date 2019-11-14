@@ -13,26 +13,29 @@ use Drupal\Core\Session\AccountInterface;
 use Drupal\private_message\Service\PrivateMessageServiceInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
+/**
+ * Access control handler for private message entities.
+ */
 class PrivateMessageAccessControlHandler extends EntityAccessControlHandler implements EntityHandlerInterface {
 
   /**
-   * The private message service
+   * The private message service.
    *
    * @var \Drupal\private_message\Service\PrivateMessageServiceInterface
    */
   protected $privateMessageService;
 
   /**
-   * Costruct a PrivateMessageThreadAccessControlHandler entity
+   * Costructs a PrivateMessageThreadAccessControlHandler entity.
    *
    * @param \Drupal\Core\Entity\EntityTypeInterface $entity_type
-   *   The entity type
+   *   The entity type.
    * @param \Drupal\Core\Plugin\Context\ContextHandlerInterface $context_handler
-   *   The context handler service
+   *   The context handler service.
    * @param \Drupal\Core\Plugin\Context\ContextRepositoryInterface $context_repository
-   *   The context repository service
+   *   The context repository service.
    * @param \Drupal\private_message\Service\PrivateMessageServiceInterface $privateMessageService
-   *  The private message service
+   *   The private message service.
    */
   public function __construct(EntityTypeInterface $entity_type, ContextHandlerInterface $context_handler, ContextRepositoryInterface $context_repository, PrivateMessageServiceInterface $privateMessageService) {
     parent::__construct($entity_type, $context_handler, $context_repository);
@@ -52,7 +55,7 @@ class PrivateMessageAccessControlHandler extends EntityAccessControlHandler impl
     );
   }
 
- /**
+  /**
    * {@inheritdoc}
    *
    * Link the activities to the permissions. checkAccess is called with the
@@ -61,31 +64,29 @@ class PrivateMessageAccessControlHandler extends EntityAccessControlHandler impl
   protected function checkAccess(EntityInterface $entity, $operation, AccountInterface $account) {
     if ($account->hasPermission('use private messaging system')) {
       switch ($operation) {
-        case 'view': {
+        case 'view':
           if ($entity->getOwner()->id() == $account->id()) {
             return AccessResult::allowed();
           }
 
           $private_message_thread = $this->privateMessageService->getThreadFromMessage($entity);
-          if($private_message_thread->isMember($account)) {
+          if ($private_message_thread->isMember($account->id())) {
             return AccessResult::allowed();
           }
 
           break;
-        }
 
-        case 'delete': {
+        case 'delete':
           if ($entity->getOwner()->id() == $account->id()) {
             return AccessResult::allowed();
           }
 
           $private_message_thread = $this->privateMessageService->getThreadFromMessage($entity);
-          if($private_message_thread->isMember($account)) {
+          if ($private_message_thread->isMember($account->id())) {
             return AccessResult::allowed();
           }
 
           break;
-        }
       }
     }
 
@@ -101,4 +102,5 @@ class PrivateMessageAccessControlHandler extends EntityAccessControlHandler impl
   protected function checkCreateAccess(AccountInterface $account, array $context, $entity_bundle = NULL) {
     return AccessResult::allowedIfHasPermission($account, 'use private messaging system');
   }
+
 }
