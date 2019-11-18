@@ -1,0 +1,13 @@
+<?php
+
+/**
+ * @file
+ * The Social Event An Enroll Enrolments Export module.
+ */
+
+/**
+ * Implements hook_social_event_managers_action_ACTION_ID_finish().
+ */
+function social_event_an_enroll_enrolments_export_social_event_managers_action_social_event_an_enroll_enrolments_export_action_finish($success) {
+  return social_event_enrolments_export_social_event_managers_action_social_event_enrolments_export_enrollments_action_finish($success);
+}
